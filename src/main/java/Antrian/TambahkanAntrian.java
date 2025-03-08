@@ -1,11 +1,11 @@
 package Antrian;
 
-import Components.CustomTextField;
-import Components.Dropdown;
-import Components.RoundedButton;
-import Components.RoundedPanel;
-import DataBase.QueryExecutor;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -15,8 +15,20 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
-import javax.swing.*;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
+
+import Components.CustomTextField;
+import Components.Dropdown;
+import Components.RoundedButton;
+import Components.RoundedPanel;
+import DataBase.QueryExecutor;
 
 public class TambahkanAntrian extends JFrame {
 
@@ -54,7 +66,7 @@ public class TambahkanAntrian extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         // Nama Pasien Dropdown
-        JLabel namaPasienLabel = new JLabel("NIK / Nama:");
+        JLabel namaPasienLabel = new JLabel("NIK / Nama / KTP :");
         namaPasienLabel.setFont(new Font("Arial", Font.BOLD, 14));
         gbc.gridx = 0;
         gbc.gridy = 1;
@@ -71,6 +83,17 @@ public class TambahkanAntrian extends JFrame {
                     // Perform search when Enter is pressed
                     String text = namaPasienDropdown.getText();
                     searchDatabase(text);
+                }
+            }
+        });
+
+        // Add KeyListener to detect RFID input
+        namaPasienDropdown.getTextField().addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                // Assuming RFID input is 10 characters long
+                if (namaPasienDropdown.getText().length() == 16) {
+                    String rfid = namaPasienDropdown.getText();
                 }
             }
         });
@@ -105,7 +128,7 @@ public class TambahkanAntrian extends JFrame {
                 if (namaPasienDropdown.getText().isEmpty()) {
                     JOptionPane.showMessageDialog(
                             null,
-                            "Harus memasukkan data NIK/Nama terlebih dahulu!",
+                            "Harus memasukkan data NIK/Nama terlebih dahulu/Scan RFID KTP!",
                             "Peringatan",
                             JOptionPane.WARNING_MESSAGE
                     );
@@ -204,8 +227,8 @@ public class TambahkanAntrian extends JFrame {
                            ) AS umur,
                            jenis_kelamin,
                            alamat,
-                           no_telepon AS no_telp FROM pasien WHERE nik = ? OR nama = ? LIMIT 1""";
-        java.util.List<Map<String, Object>> results = executor.executeSelectQuery(Query, new Object[]{nik, nik});
+                           no_telepon AS no_telp FROM pasien WHERE nik = ? OR nama = ? OR rfid = ? LIMIT 1""";
+        java.util.List<Map<String, Object>> results = executor.executeSelectQuery(Query, new Object[]{nik, nik, nik});
 
         System.out.println(results);
         if (!results.isEmpty()) {
@@ -228,6 +251,7 @@ public class TambahkanAntrian extends JFrame {
         }
     }
 
+    
     // Getter methods to access the text from the text fields
     public String getIdPasienText() {
         return (String) idPasienDropdown.getSelectedItem();

@@ -4,18 +4,38 @@
  */
 package Auth;
 
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.swing.BorderFactory;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.border.MatteBorder;
+import javax.swing.border.TitledBorder;
+
+import com.formdev.flatlaf.FlatLightLaf;
+
 import Components.CustomTextField;
 import Components.RoundedButton;
 import Components.RoundedPanel;
 import DataBase.QueryExecutor;
 import Global.UserSessionCache;
 import Main.Drawer;
-import com.formdev.flatlaf.FlatLightLaf;
-import java.awt.*;
-import java.util.Map;
-import java.util.Optional;
-import javax.swing.*;
-import javax.swing.border.*;
 
 /**
  *
@@ -74,38 +94,22 @@ public class Login extends JFrame {
         gbc.gridwidth = 0;
         cardPanel.add(lblTitle, gbc);
 
-        CustomTextField txtUsername = new CustomTextField("Username", 20, 15, Optional.empty());
+        CustomTextField txtUsernameOrRFID = new CustomTextField("Username or RFID", 20, 15, Optional.empty());
         gbc.gridy = 1;
-        cardPanel.add(txtUsername, gbc);
+        cardPanel.add(txtUsernameOrRFID, gbc);
 
         // JPasswordField for Password input
         CustomTextField txtPassword = new CustomTextField("Password", 20, 15, Optional.of(true));
         gbc.gridy = 2;
         cardPanel.add(txtPassword, gbc);
 
-        // ForgotPassword link
-//        JLabel forgotpasswordlink = new JLabel("Lupa Password?");
-//        forgotpasswordlink.setForeground(Color.WHITE);
-//        forgotpasswordlink.setCursor(new Cursor(Cursor.HAND_CURSOR));
-//        forgotpasswordlink.setHorizontalAlignment(SwingConstants.RIGHT);
-//        gbc.gridx = 0;
-//        gbc.gridy = 3;
-//        cardPanel.add(forgotpasswordlink, gbc);
-//
-//        forgotpasswordlink.addMouseListener(new java.awt.event.MouseAdapter() {
-//            public void mouseClicked(java.awt.event.MouseEvent evt) {
-//                // Open the Login window when the login link is clicked
-//                new LupaPasword().setVisible(true);
-//                dispose(); // Close the Register window
-//            }
-//        });
         // Register link
         JLabel registerlink = new JLabel("Belum Punya Akun? Register");
         registerlink.setForeground(Color.WHITE);
         registerlink.setCursor(new Cursor(Cursor.HAND_CURSOR));
         registerlink.setHorizontalAlignment(SwingConstants.CENTER);
         gbc.gridx = 0;
-        gbc.gridy = 5;
+        gbc.gridy = 4;
         cardPanel.add(registerlink, gbc);
 
         registerlink.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -122,24 +126,33 @@ public class Login extends JFrame {
         btnLogin.setForeground(new Color(0, 150, 136));
         btnLogin.setFont(new Font("Arial", Font.BOLD, 16));
         btnLogin.setBorderColor(new Color(0, 150, 136)); // Match the app's theme color
-        gbc.gridy = 4;
+        gbc.gridy = 3;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         cardPanel.add(btnLogin, gbc);
 
-        txtUsername.setPreferredSize(new Dimension(200, 50));
+        txtUsernameOrRFID.setPreferredSize(new Dimension(200, 50));
         btnLogin.setPreferredSize(new Dimension(200, 50));
 
         btnLogin.addActionListener(e -> {
             // Catch Field
-            String username = txtUsername.getText();
+            String usernameOrRFID = txtUsernameOrRFID.getText();
             String password = new String(txtPassword.getPassword()); // Use `new String()` to get password from JPasswordField
 
             // Executor
             QueryExecutor executor = new QueryExecutor();
-            // Query and Parameter
-            String query = "CALL login(?, ?)";
-            Object[] parameter = new Object[]{username, password};
+            String query;
+            Object[] parameter;
+
+            if (usernameOrRFID.matches("\\d{16}")) { // Check if input is a 16-digit numeric (RFID)
+                // Login using RFID
+                query = "CALL login_with_rfid(?)";
+                parameter = new Object[]{usernameOrRFID};
+            } else {
+                // Login using username and password
+                query = "CALL login(?, ?)";
+                parameter = new Object[]{usernameOrRFID, password};
+            }
 
             java.util.List<Map<String, Object>> results = executor.executeSelectQuery(query, parameter);
             if (!results.isEmpty()) {
@@ -148,6 +161,7 @@ public class Login extends JFrame {
                 Long code = (Long) getData.get("code");
                 if (code.equals(200L)) {
                     String uuid = (String) getData.get("user_id");
+                    String username = (String) getData.get("username"); // Retrieve the username from the result
                     UserSessionCache cache = new UserSessionCache();
                     cache.login(username, uuid);
                     JOptionPane.showMessageDialog(Login.this, "Selamat Datang " + getData.get("nama_lengkap"), (String) getData.get("message"), JOptionPane.INFORMATION_MESSAGE);

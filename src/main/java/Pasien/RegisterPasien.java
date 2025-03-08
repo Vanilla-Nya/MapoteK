@@ -1,13 +1,9 @@
 package Pasien;
 
-import Components.CustomDatePicker;
-import Components.CustomTextField;
-import Components.Dropdown;
-import Components.RoundedButton;
-import DataBase.QueryExecutor;
-import Helpers.OnPasienAddedListener;
-import Helpers.TypeNumberHelper;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.LocalDate;
@@ -16,9 +12,22 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import javax.swing.*;
+
+import javax.swing.BorderFactory;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.AbstractDocument;
+
+import Components.CustomDatePicker;
+import Components.CustomTextField;
+import Components.Dropdown;
+import Components.RoundedButton;
+import DataBase.QueryExecutor;
+import Helpers.OnPasienAddedListener;
+import Helpers.TypeNumberHelper;
 
 /**
  *
@@ -26,7 +35,7 @@ import javax.swing.text.AbstractDocument;
  */
 public class RegisterPasien extends JFrame {
 
-    private CustomTextField txtnik, txtAge, txtName, txtAddress, txtPhone;
+    private CustomTextField txtnik, txtAge, txtName, txtAddress, txtPhone, txtRFID; // Add txtRFID
     private Dropdown txtGender;
     private OnPasienAddedListener listener;
     private CustomDatePicker customDatePicker;
@@ -55,15 +64,23 @@ public class RegisterPasien extends JFrame {
         ((AbstractDocument) txtnik.getTextField().getDocument()).setDocumentFilter(new TypeNumberHelper(16));
         formPanel.add(txtnik, gbc);
 
+        // Add RFID KTP field below NIK
         gbc.gridx = 0;
         gbc.gridy = 2;
+        formPanel.add(new JLabel("RFID KTP: "), gbc);
+        gbc.gridx = 1;
+        txtRFID = new CustomTextField("Masukan RFID KTP", 20, 15, Optional.empty());
+        formPanel.add(txtRFID, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
         formPanel.add(new JLabel("Nama Pasien:"), gbc);
         gbc.gridx = 1;
         txtName = new CustomTextField("Masukan Nama", 20, 15, Optional.empty());
         formPanel.add(txtName, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         formPanel.add(new JLabel("Tanggal Lahir:"), gbc);
         gbc.gridx = 1;
         txtAge = new CustomTextField("Tanggal Lahir ", 20, 15, Optional.empty());
@@ -77,7 +94,7 @@ public class RegisterPasien extends JFrame {
         formPanel.add(txtAge, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 4;
+        gbc.gridy = 5;
         formPanel.add(new JLabel("Jenis Kelamin:"), gbc);
         gbc.gridx = 1;
         txtGender = new Dropdown(false, true, null);
@@ -85,14 +102,14 @@ public class RegisterPasien extends JFrame {
         formPanel.add(txtGender, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 5;
+        gbc.gridy = 6;
         formPanel.add(new JLabel("Alamat"), gbc);
         gbc.gridx = 1;
         txtAddress = new CustomTextField("Masukan Alamat", 20, 15, Optional.empty());
         formPanel.add(txtAddress, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 6;
+        gbc.gridy = 7;
         formPanel.add(new JLabel("No.Telp"), gbc);
         gbc.gridx = 1;
         txtPhone = new CustomTextField("Masukan No.telp", 20, 15, Optional.empty());
@@ -101,7 +118,7 @@ public class RegisterPasien extends JFrame {
 
         // Submit button with RoundedButton
         gbc.gridx = 0;
-        gbc.gridy = 7;
+        gbc.gridy = 8;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         RoundedButton submitButton = new RoundedButton("Tambahkan");
@@ -110,6 +127,7 @@ public class RegisterPasien extends JFrame {
         submitButton.addActionListener(e -> {
             String id = String.valueOf(model.getRowCount() + 1);
             String nik = txtnik.getText();
+            String rfid = txtRFID.getText(); // Get RFID KTP value
             String name = txtName.getText();
             String age = txtAge.getText();
             String gender = (String) txtGender.getSelectedItem();
@@ -117,7 +135,7 @@ public class RegisterPasien extends JFrame {
             String phone = txtPhone.getText();
 
             // Validasi input sebelum menambahkan
-            if (id.isEmpty() || nik.isEmpty() || name.isEmpty() || age == null || gender.isEmpty() || address.isEmpty() || phone.isEmpty()) {
+            if (id.isEmpty() || nik.isEmpty() || rfid.isEmpty() || name.isEmpty() || age == null || gender.isEmpty() || address.isEmpty() || phone.isEmpty()) {
                 JOptionPane.showMessageDialog(RegisterPasien.this, "Semua field harus diisi!", "Peringatan", JOptionPane.WARNING_MESSAGE);
                 return;
             }
@@ -143,8 +161,8 @@ public class RegisterPasien extends JFrame {
                     Object[] parameterCheck = new Object[]{nik};
                     java.util.List<Map<String, Object>> resultCheck = new QueryExecutor().executeSelectQuery(checknik, parameterCheck);
                     if (resultCheck.isEmpty()) {
-                        String Query = "INSERT INTO pasien (nik, nama, jenis_kelamin, tanggal_lahir, no_telepon, alamat) VALUES (?,?,?,?,?,?)";
-                        Object[] parameter = new Object[]{nik, name, gender, selectedBirthDate, phone, address};
+                        String Query = "INSERT INTO pasien (nik, rfid, nama, jenis_kelamin, tanggal_lahir, no_telepon, alamat) VALUES (?,?,?,?,?,?,?)";
+                        Object[] parameter = new Object[]{nik, rfid, name, gender, selectedBirthDate, phone, address};
                         Long isInserted = QueryExecutor.executeInsertQueryWithReturnID(Query, parameter);
                         if (isInserted != 404) {
                             Period period = Period.between(selectedBirthDate, currentDate);
