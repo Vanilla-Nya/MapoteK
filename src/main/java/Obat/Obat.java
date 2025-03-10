@@ -18,6 +18,8 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -41,7 +43,7 @@ public class Obat extends JPanel implements OnObatAddedListener, OnObatUpdateLis
         if (!results.isEmpty()) {
             for (Map<String, Object> result : results) {
                 Object[] dataFromDatabase = new Object[]{
-                    data.length + 1, result.get("nama_obat"), result.get("nama_jenis_obat"),
+                    data.length + 1, result.get("barcode"), result.get("nama_obat"), result.get("nama_jenis_obat"),
                     result.get("harga"), result.get("stock"), ""
                 };
 
@@ -136,24 +138,66 @@ public class Obat extends JPanel implements OnObatAddedListener, OnObatUpdateLis
         searchButton.addActionListener(e -> {
             String searchTerm = searchField.getText().toLowerCase();
             Object[][] filteredData = Arrays.stream(data)
-                    .filter(row -> ((String) row[1]).toLowerCase().contains(searchTerm)) // Check if 'NAMA OBAT' contains search term
+                    .filter(row -> ((String) row[1]).toLowerCase().contains(searchTerm) // Check if 'BARCODE' contains search term
+                            || ((String) row[2]).toLowerCase().contains(searchTerm)) // Check if 'NAMA OBAT' contains search term
                     .toArray(Object[][]::new);
 
             // Add the "AKSI" column with action buttons back to the filtered data
-            Object[][] dataWithActions = new Object[filteredData.length][6]; // 6 columns including the "AKSI" column
+            Object[][] dataWithActions = new Object[filteredData.length][7]; // 7 columns including the "AKSI" column
 
             for (int i = 0; i < filteredData.length; i++) {
-                dataWithActions[i] = Arrays.copyOf(filteredData[i], 6); // Copy data to the new array and ensure we have 6 columns
-                dataWithActions[i][5] = "Action"; // Placeholder for the "AKSI" column (we will update this with buttons)
+                dataWithActions[i] = Arrays.copyOf(filteredData[i], 7); // Copy data to the new array and ensure we have 7 columns
+                dataWithActions[i][6] = "Action"; // Placeholder for the "AKSI" column (we will update this with buttons)
             }
 
             // Update the table model with the filtered data
-            tableModel.setDataVector(filteredData, new String[]{"NO", "NAMA OBAT", "JENIS OBAT", "HARGA", "STOCK", "AKSI"});
+            tableModel.setDataVector(filteredData, new String[]{"NO", "BARCODE", "NAMA OBAT", "JENIS OBAT", "HARGA", "STOCK", "AKSI"});
 
             // Reapply the button rendering and editing to the "AKSI" column
             obatTable.getColumn("AKSI").setCellRenderer(new ActionCellRenderer());
             obatTable.getColumn("AKSI").setCellEditor(new ActionCellEditor(tableModel));
             setTableColumnWidths(obatTable);
+        });
+
+        searchField.getTextField().getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                performSearch();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                performSearch();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                performSearch();
+            }
+
+            private void performSearch() {
+                String searchTerm = searchField.getText().toLowerCase();
+                Object[][] filteredData = Arrays.stream(data)
+                        .filter(row -> ((String) row[1]).toLowerCase().contains(searchTerm) // Check if 'BARCODE' contains search term
+                                || ((String) row[2]).toLowerCase().contains(searchTerm)) // Check if 'NAMA OBAT' contains search term
+                        .toArray(Object[][]::new);
+
+                // Add the "AKSI" column with action buttons back to the filtered data
+                Object[][] dataWithActions = new Object[filteredData.length][7]; // 7 columns including the "AKSI" column
+
+                for (int i = 0; i < filteredData.length; i++) {
+                    dataWithActions[i] = Arrays.copyOf(filteredData[i], 7); // Copy data to the new array and ensure we have 7 columns
+                    dataWithActions[i][6] = "Action"; // Placeholder for the "AKSI" column (we will update this with buttons)
+                }
+
+                // Update the table model with the filtered data
+                tableModel.setDataVector(filteredData, new String[]{"NO", "BARCODE", "NAMA OBAT", "JENIS OBAT", "HARGA", "STOCK", "AKSI"});
+
+                // Reapply the button rendering and editing to the "AKSI" column
+                obatTable.getColumn("AKSI").setCellRenderer(new ActionCellRenderer());
+                obatTable.getColumn("AKSI").setCellEditor(new ActionCellEditor(tableModel));
+                setTableColumnWidths(obatTable);
+            }
         });
 
         // Add components to the top panel
@@ -189,13 +233,13 @@ public class Obat extends JPanel implements OnObatAddedListener, OnObatUpdateLis
 
     private JScrollPane createTablePanel() {
         // Table data and columns setup
-        String[] columns = {"NO", "NAMA OBAT", "JENIS OBAT", "HARGA", "STOCK", "AKSI"};
+        String[] columns = {"NO", "BARCODE", "NAMA OBAT", "JENIS OBAT", "HARGA", "STOCK", "AKSI"};
 
         // Table model
         tableModel = new DefaultTableModel(data, columns) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 5; // Action column (buttons) should be editable
+                return column == 6; // Action column (buttons) should be editable
             }
         };
 
@@ -243,11 +287,12 @@ public class Obat extends JPanel implements OnObatAddedListener, OnObatUpdateLis
 
     private void setTableColumnWidths(JTable table) {
         table.getColumnModel().getColumn(0).setPreferredWidth(50);  // NO column
-        table.getColumnModel().getColumn(1).setPreferredWidth(150); // NAMA OBAT column
-        table.getColumnModel().getColumn(2).setPreferredWidth(75); // JENIS OBAT column
-        table.getColumnModel().getColumn(3).setPreferredWidth(75); // HARGA column
-        table.getColumnModel().getColumn(4).setPreferredWidth(75); // STOCK column
-        table.getColumnModel().getColumn(5).setPreferredWidth(150); // AKSI column (Buttons)
+        table.getColumnModel().getColumn(1).setPreferredWidth(150); // BARCODE column
+        table.getColumnModel().getColumn(2).setPreferredWidth(150); // NAMA OBAT column
+        table.getColumnModel().getColumn(3).setPreferredWidth(75);  // JENIS OBAT column
+        table.getColumnModel().getColumn(4).setPreferredWidth(75);  // HARGA column
+        table.getColumnModel().getColumn(5).setPreferredWidth(75);  // STOCK column
+        table.getColumnModel().getColumn(6).setPreferredWidth(150); // AKSI column (Buttons)
     }
 
     public static void main(String[] args) {
@@ -286,7 +331,7 @@ public class Obat extends JPanel implements OnObatAddedListener, OnObatUpdateLis
         if (!results.isEmpty()) {
             for (Map<String, Object> result : results) {
                 Object[] dataFromDatabase = new Object[]{
-                    data.length + 1, result.get("nama_obat"), result.get("nama_jenis_obat"),
+                    data.length + 1, result.get("barcode"), result.get("nama_obat"), result.get("nama_jenis_obat"),
                     result.get("harga"), result.get("stock"), ""
                 };
 

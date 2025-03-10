@@ -1,19 +1,33 @@
 package TransaksiDiagnosa;
 
-import Components.CustomDialog;
-import Components.CustomTable.CustomTable;
-import Components.CustomTextField;
-import Components.RoundedButton;
-import DataBase.QueryExecutor;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
-import javax.swing.*;
+
+import javax.swing.BorderFactory;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
+
+import Components.CustomDialog;
+import Components.CustomTable.CustomTable;
+import Components.CustomTextField;
+import Components.RoundedButton;
+import DataBase.QueryExecutor;
 
 public class AddDrugs extends JFrame {
 
@@ -40,7 +54,7 @@ public class AddDrugs extends JFrame {
             for (Map<String, Object> result : results) {
                 id.add(result.get("id_obat"));
                 Object[] dataFromDatabase = new Object[]{
-                    data.length + 1, result.get("nama_obat"), result.get("nama_jenis_obat"),
+                    data.length + 1, result.get("barcode"), result.get("nama_obat"), result.get("nama_jenis_obat"),
                     result.get("harga"), result.get("stock"), ""
                 };
 
@@ -144,7 +158,7 @@ public class AddDrugs extends JFrame {
             }
 
             // Get available stock from the table (make sure to parse it as integer)
-            int availableStock = Integer.parseInt(String.valueOf(obatTable.getValueAt(selectedRow, 4))); // Assuming column 4 holds stock
+            int availableStock = Integer.parseInt(String.valueOf(obatTable.getValueAt(selectedRow, 5))); // Assuming column 5 holds stock
 
             // Check if entered stock exceeds available stock
             if (enteredStock > availableStock) {
@@ -185,11 +199,40 @@ public class AddDrugs extends JFrame {
         searchButton.addActionListener(e -> {
             String searchTerm = searchField.getText().toLowerCase();
             Object[][] filteredData = Arrays.stream(data)
-                    .filter(row -> ((String) row[1]).toLowerCase().contains(searchTerm))
+                    .filter(row -> ((String) row[2]).toLowerCase().contains(searchTerm) // Check if 'NAMA OBAT' contains search term
+                            || ((String) row[1]).toLowerCase().contains(searchTerm)) // Check if 'BARCODE' contains search term
                     .toArray(Object[][]::new);
 
             // Update the table model with the filtered data
-            tableModel.setDataVector(filteredData, new String[]{"NO", "NAMA OBAT", "JENIS OBAT", "HARGA", "STOCK", "AKSI"});
+            tableModel.setDataVector(filteredData, new String[]{"NO", "BARCODE", "NAMA OBAT", "JENIS OBAT", "HARGA", "STOCK"});
+        });
+
+        searchField.getTextField().getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                performSearch();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                performSearch();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                performSearch();
+            }
+
+            private void performSearch() {
+                String searchTerm = searchField.getText().toLowerCase();
+                Object[][] filteredData = Arrays.stream(data)
+                        .filter(row -> ((String) row[2]).toLowerCase().contains(searchTerm) // Check if 'NAMA OBAT' contains search term
+                                || ((String) row[1]).toLowerCase().contains(searchTerm)) // Check if 'BARCODE' contains search term
+                        .toArray(Object[][]::new);
+
+                // Update the table model with the filtered data
+                tableModel.setDataVector(filteredData, new String[]{"NO", "BARCODE", "NAMA OBAT", "JENIS OBAT", "HARGA", "STOCK"});
+            }
         });
 
         topPanel.add(searchPanel, BorderLayout.WEST);  // Search panel on left
@@ -221,7 +264,7 @@ public class AddDrugs extends JFrame {
 
     private JScrollPane createTablePanel() {
         // Table data and columns setup
-        String[] columns = {"NO", "NAMA OBAT", "JENIS OBAT", "HARGA", "STOCK"};
+        String[] columns = {"NO", "BARCODE", "NAMA OBAT", "JENIS OBAT", "HARGA", "STOCK"};
 
         // Table model
         tableModel = new DefaultTableModel(data, columns);
@@ -235,10 +278,10 @@ public class AddDrugs extends JFrame {
             public void mouseClicked(MouseEvent e) {
                 int selectedRow = obatTable.getSelectedRow();
                 idObat = Integer.valueOf(id.get(selectedRow).toString());
-                namaObat = String.valueOf(obatTable.getValueAt(selectedRow, 1));
-                jenisObat = String.valueOf(obatTable.getValueAt(selectedRow, 2));
-                harga = Double.parseDouble(String.valueOf(obatTable.getValueAt(selectedRow, 3)));
-                stock = Integer.valueOf(String.valueOf(obatTable.getValueAt(selectedRow, 4)));
+                namaObat = String.valueOf(obatTable.getValueAt(selectedRow, 2));
+                jenisObat = String.valueOf(obatTable.getValueAt(selectedRow, 3));
+                harga = Double.parseDouble(String.valueOf(obatTable.getValueAt(selectedRow, 4)));
+                stock = Integer.valueOf(String.valueOf(obatTable.getValueAt(selectedRow, 5)));
 
                 // Update data labels with the selected row details
                 namaObatLabel.setText("NAMA OBAT : " + namaObat);
@@ -266,9 +309,10 @@ public class AddDrugs extends JFrame {
 
     private void setTableColumnWidths(JTable table) {
         table.getColumnModel().getColumn(0).setPreferredWidth(50); // NO
-        table.getColumnModel().getColumn(1).setPreferredWidth(200); // NAMA OBAT
-        table.getColumnModel().getColumn(2).setPreferredWidth(150); // JENIS OBAT
-        table.getColumnModel().getColumn(3).setPreferredWidth(100); // HARGA
-        table.getColumnModel().getColumn(4).setPreferredWidth(100); // STOCK
+        table.getColumnModel().getColumn(1).setPreferredWidth(200); // BARCODE
+        table.getColumnModel().getColumn(2).setPreferredWidth(200); // NAMA OBAT
+        table.getColumnModel().getColumn(3).setPreferredWidth(150); // JENIS OBAT
+        table.getColumnModel().getColumn(4).setPreferredWidth(100); // HARGA
+        table.getColumnModel().getColumn(5).setPreferredWidth(100); // STOCK
     }
 }

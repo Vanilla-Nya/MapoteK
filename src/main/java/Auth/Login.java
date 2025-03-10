@@ -27,6 +27,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import com.formdev.flatlaf.FlatLightLaf;
 
@@ -144,7 +146,7 @@ public class Login extends JFrame {
             String query;
             Object[] parameter;
 
-            if (usernameOrRFID.matches("\\d{16}")) { // Check if input is a 16-digit numeric (RFID)
+            if (usernameOrRFID.matches("\\d{10}")) { // Check if input is a 16-digit numeric (RFID)
                 // Login using RFID
                 query = "CALL login_with_rfid(?)";
                 parameter = new Object[]{usernameOrRFID};
@@ -169,6 +171,64 @@ public class Login extends JFrame {
                     this.dispose();
                 } else {
                     JOptionPane.showMessageDialog(Login.this, "Login gagal", (String) getData.get("message"), JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        txtUsernameOrRFID.getTextField().getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                performLogin();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                performLogin();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                performLogin();
+            }
+
+            private void performLogin() {
+                String usernameOrRFID = txtUsernameOrRFID.getText();
+                if (usernameOrRFID.matches("\\d{10}")) { // Check if input is a 10-digit numeric (RFID)
+                    // Catch Field
+                    String password = txtPassword.getPassword(); // Use `getPassword()` to get password from CustomTextField
+
+                    // Executor
+                    QueryExecutor executor = new QueryExecutor();
+                    String query;
+                    Object[] parameter;
+
+                    if (usernameOrRFID.matches("\\d{10}")) { // Check if input is a 10-digit numeric (RFID)
+                        // Login using RFID
+                        query = "CALL login_with_rfid(?)";
+                        parameter = new Object[]{usernameOrRFID};
+                    } else {
+                        // Login using username and password
+                        query = "CALL login(?, ?)";
+                        parameter = new Object[]{usernameOrRFID, password};
+                    }
+
+                    java.util.List<Map<String, Object>> results = executor.executeSelectQuery(query, parameter);
+                    if (!results.isEmpty()) {
+                        Map<String, Object> getData = results.get(0);
+                        System.err.println(getData);
+                        Long code = (Long) getData.get("code");
+                        if (code.equals(200L)) {
+                            String uuid = (String) getData.get("user_id");
+                            String username = (String) getData.get("username"); // Retrieve the username from the result
+                            UserSessionCache cache = new UserSessionCache();
+                            cache.login(username, uuid);
+                            JOptionPane.showMessageDialog(Login.this, "Selamat Datang " + getData.get("nama_lengkap"), (String) getData.get("message"), JOptionPane.INFORMATION_MESSAGE);
+                            new Drawer().setVisible(true);
+                            Login.this.dispose();
+                        } else {
+                            JOptionPane.showMessageDialog(Login.this, "Login gagal", (String) getData.get("message"), JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
                 }
             }
         });
