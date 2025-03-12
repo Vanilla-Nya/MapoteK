@@ -4,7 +4,11 @@
  */
 package Components;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+
 import javax.swing.JPanel;
 
 /**
@@ -40,6 +44,15 @@ public class CustomPanel extends JPanel {
         // Draw the actual panel background
         g2d.setColor(Color.WHITE); // Panel background color
         g2d.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, radius, radius);
+
+        // Custom painting logic from CurvedPanel
+        Color teal = new Color(0, 150, 136);
+        g2d.setColor(teal);
+        int width = getWidth();
+        int height = getHeight();
+        g2d.fillRect(0, 0, width, height);
+        g2d.setColor(Color.WHITE);
+        g2d.fillOval(width / 2 - 10, -100, width, height + 200);
 
         g2d.dispose(); // Release resources
     }

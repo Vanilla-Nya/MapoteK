@@ -35,6 +35,7 @@ import javax.swing.event.DocumentListener;
 
 import com.formdev.flatlaf.FlatLightLaf;
 
+import Components.CustomPanel;
 import Components.CustomTextField;
 import Components.RoundedButton;
 import Components.RoundedPanel;
@@ -86,7 +87,7 @@ public class Login extends JFrame {
         UIManager.put("TextComponent.arc", 15);
 
         // Create a main container with GridBagLayout
-        JPanel mainPanel = new CurvedPanel();
+        JPanel mainPanel = new CustomPanel(25); // Use CustomPanel with radius 25
         mainPanel.setLayout(new GridBagLayout());
         add(mainPanel);
 
