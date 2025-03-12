@@ -8,9 +8,12 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.RenderingHints;
 import java.util.Map;
 import java.util.Optional;
 
@@ -43,6 +46,29 @@ import Main.Drawer;
  *
  * @author asuna
  */
+
+class CurvedPanel extends JPanel {
+    @Override
+protected void paintComponent(Graphics g) {
+  super.paintComponent(g);
+  
+  Graphics2D g2d = (Graphics2D) g;
+  g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+  
+  // Warna hijau kebiruan
+  Color teal = new Color(0, 150, 136);
+  g2d.setColor(teal);
+  
+  // Buat kurva dengan shape ellipse yang sebagian ditampilkan
+  int width = getWidth();
+  int height = getHeight();
+  g2d.fillRect(0, 0, width, height);
+  
+  g2d.setColor(Color.WHITE);
+  g2d.fillOval(width / 2 - 10, -100, width, height + 200);
+}
+}
+
 public class Login extends JFrame {
 
     public Login() {
@@ -60,18 +86,20 @@ public class Login extends JFrame {
         UIManager.put("TextComponent.arc", 15);
 
         // Create a main container with GridBagLayout
-        JPanel mainPanel = new JPanel(new GridBagLayout());
-        mainPanel.setBackground(new Color(245, 245, 245)); // Light grey background
+        JPanel mainPanel = new CurvedPanel();
+        mainPanel.setLayout(new GridBagLayout());
         add(mainPanel);
 
         // Create the login card panel and position it
         JPanel cardPanel = createLoginCard();
+        cardPanel.setOpaque(false);
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0; // Move the card panel to the second column to shift it to the right
         gbc.gridy = 0;
-        gbc.insets = new Insets(0, 0, 0, 0); // Add padding to the left to shift right
-        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.weightx = 1;
+        gbc.insets = new Insets(0, 30, 0, 0); // Add padding to the left to shift right
+        gbc.anchor = GridBagConstraints.WEST;
         mainPanel.add(cardPanel, gbc);
     }
 
@@ -93,7 +121,7 @@ public class Login extends JFrame {
         lblTitle.setForeground(Color.WHITE);
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.gridwidth = 0;
+        gbc.gridwidth = 2;
         cardPanel.add(lblTitle, gbc);
 
         CustomTextField txtUsernameOrRFID = new CustomTextField("Username or RFID", 20, 15, Optional.empty());
