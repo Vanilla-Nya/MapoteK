@@ -1,12 +1,9 @@
 package Pasien;
 
-import Components.CustomDatePicker;
-import Components.CustomTextField;
-import Components.Dropdown;
-import Components.RoundedButton;
-import DataBase.QueryExecutor;
-import Helpers.TypeNumberHelper;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.LocalDate;
@@ -14,25 +11,36 @@ import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-import javax.swing.*;
+
+import javax.swing.BorderFactory;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.text.AbstractDocument;
+
+import Components.CustomDatePicker;
+import Components.CustomTextField;
+import Components.Dropdown;
+import Components.RoundedButton;
+import DataBase.QueryExecutor;
+import Helpers.TypeNumberHelper;
 
 /**
  *
- * @author asuna
  */
 public class EditPasien extends JFrame {
 
-    private CustomTextField txtnik, txtNamaPasien, txtUmur, txtNoTelp, txtAlamat;
+    private CustomTextField txtnik, txtNamaPasien, txtUmur, txtNoTelp, txtAlamat, txtRFID;
     private Dropdown cbJenisKelamin;
     private OnPasienUpdatedListener listener;
     private CustomDatePicker customDatePicker;
 
-    public EditPasien(String id, String nik, String name, String age, String gender, String phone, String address, OnPasienUpdatedListener listener) {
+    public EditPasien(String id, String nik, String name, String age, String gender, String phone, String address, String rfid, OnPasienUpdatedListener listener) {
         this.listener = listener;
 
         setTitle("Edit Data Pasien");
-        setSize(450, 400);
+        setSize(450, 450);  // Increased size to accommodate RFID field
         setLayout(new GridBagLayout());
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -101,9 +109,17 @@ public class EditPasien extends JFrame {
         ((AbstractDocument) txtNoTelp.getTextField().getDocument()).setDocumentFilter(new TypeNumberHelper(13)); // Limit to 13 digits
         formPanel.add(txtNoTelp, gbc);
 
-        // Submit button with RoundedButton
+        // RFID field
         gbc.gridx = 0;
         gbc.gridy = 7;
+        formPanel.add(new JLabel("RFID:"), gbc);
+        gbc.gridx = 1;
+        txtRFID = new CustomTextField("RFID", 20, 15, Optional.empty());
+        formPanel.add(txtRFID, gbc);
+
+        // Submit button with RoundedButton
+        gbc.gridx = 0;
+        gbc.gridy = 8;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         RoundedButton btnSave = new RoundedButton("Simpan");
@@ -112,12 +128,12 @@ public class EditPasien extends JFrame {
         btnSave.addActionListener((var e) -> {
             // Get the updated data from input fields
             String UpdateNIK = txtnik.getText();
-            System.out.println(UpdateNIK);
             String updatedName = txtNamaPasien.getText();
             String updatedAge = txtUmur.getText();
             String updatedGender = (String) cbJenisKelamin.getSelectedItem();
             String updatedAddress = txtAlamat.getText();
             String updatedPhone = txtNoTelp.getText();
+            String updatedRFID = txtRFID.getText();
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             LocalDate selectedBirthDate = null;
@@ -132,13 +148,13 @@ public class EditPasien extends JFrame {
             LocalDate currentDate = LocalDate.now();
 
             if (listener != null) {
-                String Query = "UPDATE pasien SET nik = ?, nama = ?, jenis_kelamin = ?, tanggal_lahir = ?, no_telepon = ?, alamat = ? WHERE id_pasien = ?";
-                Object[] parameter = new Object[]{UpdateNIK, updatedName, updatedGender, updatedAge, updatedPhone, updatedAddress, id};
+                String Query = "UPDATE pasien SET nik = ?, nama = ?, jenis_kelamin = ?, tanggal_lahir = ?, no_telepon = ?, alamat = ?, rfid = ? WHERE id_pasien = ?";
+                Object[] parameter = new Object[]{UpdateNIK, updatedName, updatedGender, updatedAge, updatedPhone, updatedAddress, updatedRFID, id};
                 boolean isUpdated = QueryExecutor.executeUpdateQuery(Query, parameter);
                 if (isUpdated) {
                     Period period = Period.between(selectedBirthDate, currentDate);
                     String BirthDate = period.getYears() + " Tahun " + period.getMonths() + " Bulan " + period.getDays() + " Hari";
-                    listener.onPasienUpdated(UpdateNIK, updatedName, BirthDate, updatedGender, updatedPhone, updatedAddress);
+                    listener.onPasienUpdated(UpdateNIK, updatedName, BirthDate, updatedGender, updatedPhone, updatedAddress, updatedRFID);
                     JOptionPane.showMessageDialog(this, "Update Success", "Success", JOptionPane.INFORMATION_MESSAGE);
                     System.out.println("Update successful!");
                     // Close the window after submission
@@ -176,6 +192,7 @@ public class EditPasien extends JFrame {
         cbJenisKelamin.getEditor().setItem(gender);
         txtNoTelp.setText(phone);
         txtAlamat.setText(address);
+        txtRFID.setText(rfid);
 
         setLocationRelativeTo(null);
         setVisible(true);
@@ -183,7 +200,6 @@ public class EditPasien extends JFrame {
 
     // Listener interface for updating the pasien data
     public interface OnPasienUpdatedListener {
-
-        void onPasienUpdated(String nik, String name, String age, String gender, String phone, String address);
+        void onPasienUpdated(String nik, String name, String age, String gender, String phone, String address, String rfid);
     }
 }

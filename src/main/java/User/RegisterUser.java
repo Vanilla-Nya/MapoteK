@@ -20,7 +20,7 @@ import javax.swing.text.AbstractDocument;
 
 public class RegisterUser extends JFrame {
 
-    private CustomTextField txtName, txtAddress, txtPhone, txtPassword;
+    private CustomTextField txtName, txtAddress, txtPhone, txtPassword, txtRFID;
     private Dropdown txtRole, txtGender;
     private OnUserAddedListener listener;
     private CustomDatePicker customDatePicker;
@@ -29,7 +29,7 @@ public class RegisterUser extends JFrame {
         this.listener = listener;
 
         setTitle("Tambahkan User");
-        setSize(450, 450);  // Increased size to accommodate password field
+        setSize(450, 500);  // Increased size to accommodate RFID field
         setLayout(new GridBagLayout());
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -92,9 +92,17 @@ public class RegisterUser extends JFrame {
         txtPassword = new CustomTextField("Enter Password", 20, 15, Optional.of(true));  // Password field
         formPanel.add(txtPassword, gbc);
 
-        // Submit button with RoundedButton
+        // RFID field
         gbc.gridx = 0;
         gbc.gridy = 7;
+        formPanel.add(new JLabel("RFID:"), gbc);
+        gbc.gridx = 1;
+        txtRFID = new CustomTextField("Enter RFID", 20, 15, Optional.empty());
+        formPanel.add(txtRFID, gbc);
+
+        // Submit button with RoundedButton
+        gbc.gridx = 0;
+        gbc.gridy = 8;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         RoundedButton submitButton = new RoundedButton("Tambahkan");
@@ -114,18 +122,19 @@ public class RegisterUser extends JFrame {
                 String address = txtAddress.getText();
                 String phone = txtPhone.getText();
                 String password = txtPassword.getText(); // Changed to getText() for password field
+                String rfid = txtRFID.getText();
 
                 if (uuid != null) {
                     // Validate fields (if necessary)
-                    if (name.isEmpty() || phone.isEmpty() || address.isEmpty()) {
+                    if (name.isEmpty() || phone.isEmpty() || address.isEmpty() || rfid.isEmpty()) {
                         JOptionPane.showMessageDialog(RegisterUser.this, "Please fill in all fields.", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
                     // Step 1: Insert the user into the 'user' table
                     QueryExecutor queryExecutor = new QueryExecutor();  // Create instance of QueryExecutor
-                    String insertUserQuery = "INSERT INTO user (nama_lengkap ,username, jenis_kelamin, alamat, no_telp, password) VALUES (?, ?, ?, ?, ?, ?)";
-                    boolean userInserted = queryExecutor.executeInsertQuery(insertUserQuery, new Object[]{name, name, gender, address, phone, password});
+                    String insertUserQuery = "INSERT INTO user (nama_lengkap, username, jenis_kelamin, alamat, no_telp, password, rfid) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                    boolean userInserted = queryExecutor.executeInsertQuery(insertUserQuery, new Object[]{name, name, gender, address, phone, password, rfid});
 
                     if (!userInserted) {
                         JOptionPane.showMessageDialog(RegisterUser.this, "Failed to add user.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -137,10 +146,20 @@ public class RegisterUser extends JFrame {
                     List<Map<String, Object>> result = queryExecutor.executeSelectQuery(getLastInsertIdQuery, new Object[]{name});
                     String userId = (String) result.get(0).get("userId");
 
-                    // Step 3: Insert into user_role table
+                    // Step 3: Check if the user-role combination already exists
+                    String checkUserRoleQuery = "SELECT COUNT(*) as count FROM user_role WHERE id_user = ? AND id_role = (SELECT id_role FROM role WHERE nama_role = ?)";
+                    List<Map<String, Object>> checkResult = queryExecutor.executeSelectQuery(checkUserRoleQuery, new Object[]{userId, role});
+                    int count = ((Long) checkResult.get(0).get("count")).intValue();
+
+                    if (count > 0) {
+                        JOptionPane.showMessageDialog(RegisterUser.this, "User-role combination already exists.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+
+                    // Step 4: Insert into user_role table
                     String insertUserRoleQuery = "INSERT INTO user_role (id_user, id_role) SELECT ?, id_role FROM role WHERE nama_role = ?";
                     try {
-                        boolean userRoleInserted = QueryExecutor.executeInsertQuery(insertUserRoleQuery, new Object[]{userId, role});
+                        boolean userRoleInserted = queryExecutor.executeInsertQuery(insertUserRoleQuery, new Object[]{userId, role});
 
                         if (userRoleInserted) {
                             JOptionPane.showMessageDialog(RegisterUser.this, "User added successfully!");

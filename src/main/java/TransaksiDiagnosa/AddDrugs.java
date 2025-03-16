@@ -31,8 +31,8 @@ import DataBase.QueryExecutor;
 
 public class AddDrugs extends JFrame {
 
-    private CustomTextField namaObatField, jenisObatField, hargaField, stockField;
-    private String namaObat, jenisObat;
+    private CustomTextField namaObatField, jenisObatField, hargaField, stockField, usageField;
+    private String namaObat, jenisObat, usageInstructions;
     private Integer stock, idObat;
     private TransaksiDiagnosa parentForm;  // Reference to the parent form
     private JLabel idLabel, hargaLabel, namaObatLabel, stockLabel, jenisObatLabel;
@@ -145,6 +145,12 @@ public class AddDrugs extends JFrame {
                 return;  // Exit if stock is empty
             }
 
+            // Check if usage field is empty
+            if (usageField.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Cara penggunaan harus diisi!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+                return;  // Exit if usage instructions are empty
+            }
+
             // Get stock input
             String stockText = stockField.getText();
 
@@ -241,7 +247,7 @@ public class AddDrugs extends JFrame {
     }
 
     private JPanel createDataPanel() {
-        JPanel dataPanel = new JPanel(new GridLayout(5, 2, 10, 10));
+        JPanel dataPanel = new JPanel(new GridLayout(6, 2, 10, 10)); // Adjusted to 6 rows
         dataPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // Create Labels for data
@@ -258,6 +264,8 @@ public class AddDrugs extends JFrame {
         dataPanel.add(new JLabel(""));  // Placeholder for Harga value
         stockField = new CustomTextField("Jumlah", 0, 0, Optional.empty());
         dataPanel.add(stockField);  // Placeholder for Stock value
+        usageField = new CustomTextField("Cara Penggunaan", 0, 0, Optional.empty()); // New field for usage instructions
+        dataPanel.add(usageField);
 
         return dataPanel;
     }
@@ -295,7 +303,8 @@ public class AddDrugs extends JFrame {
 
     private void addDrugToTableAndClose() {
         // Add the drug details to the parent table (or handle the addition logic)
-        parentForm.addOrUpdateDrug(idObat, namaObat, jenisObat, Integer.parseInt(stockField.getText()), harga * Integer.parseInt(stockField.getText()));
+        usageInstructions = usageField.getText(); // Get the usage instructions
+        parentForm.addOrUpdateDrug(idObat, namaObat, jenisObat, Integer.parseInt(stockField.getText()), harga * Integer.parseInt(stockField.getText()), usageInstructions);
 
         System.out.println("Drug added to the table, closing the window.");  // Debugging line
         dispose();  // Close the AddDrugs window

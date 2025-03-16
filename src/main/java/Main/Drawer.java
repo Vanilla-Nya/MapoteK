@@ -1,5 +1,28 @@
 package Main;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Image;
+import java.awt.geom.RoundRectangle2D;
+import java.util.Map;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
+
+import Absensi.Absensi;
+import Absensi.AllAbsensi;
 import Antrian.AntrianPasien;
 import Components.CustomTitleBarFrame;
 import Dashboard.Dashboard;
@@ -10,11 +33,6 @@ import Pasien.Pasien;
 import Pembukuan.Pembukuan;
 import Pemeriksaan.TablePemeriksaan;
 import User.User;
-import java.awt.*;
-import java.awt.geom.RoundRectangle2D;
-import java.util.Map;
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 
 public class Drawer extends JFrame {
 
@@ -25,7 +43,10 @@ public class Drawer extends JFrame {
     private final JLabel contentLabel;
     private boolean isDrawerCollapsed = false;
     private final JButton toggleButton;
-    private final JButton dashboardButton, pasienButton, obatButton, queueButton, pembukuanButton, pemeriksaanButton, userButton;
+    private final JButton dashboardButton, pasienButton, obatButton, queueButton, pembukuanButton, pemeriksaanButton, userButton, absensiButton, allAbsensiButton;
+
+    // Single instance of Absensi class
+    private Absensi absensiInstance;
 
     public Drawer() {
         UserSessionCache cache = new UserSessionCache();
@@ -47,7 +68,6 @@ public class Drawer extends JFrame {
                 this::dispose, // Close action (disposes the dialog)
                 this::minimizeWindow // Minimize action
         );
-//        setTitle("Collapsible Drawer App");
         setSize(1280, 720);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -79,6 +99,8 @@ public class Drawer extends JFrame {
         pemeriksaanButton = createDrawerButton(" Pemeriksaan");
         pembukuanButton = createDrawerButton(" Pembukuan");
         userButton = createDrawerButton(" Management User");
+        absensiButton = createDrawerButton(" Absensi");
+        allAbsensiButton = createDrawerButton(" All Absensi");
 
         dashboardButton.setIcon(new ImageIcon(new ImageIcon(getClass().getClassLoader().getResource("assets/house-solid.png")).getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH)));  // Set icon for Dashboard
         pasienButton.setIcon(new ImageIcon(new ImageIcon(getClass().getClassLoader().getResource("assets/hospital-user-solid.png")).getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH)));  // Set icon for Pasien
@@ -87,6 +109,8 @@ public class Drawer extends JFrame {
         pemeriksaanButton.setIcon(new ImageIcon(new ImageIcon(getClass().getClassLoader().getResource("assets/magnifying-glass-solid.png")).getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH)));  // Set icon for Pemriksaan
         pembukuanButton.setIcon(new ImageIcon(new ImageIcon(getClass().getClassLoader().getResource("assets/book-solid.png")).getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH)));  // Set icon for Pembukuan
         userButton.setIcon(new ImageIcon(new ImageIcon(getClass().getClassLoader().getResource("assets/user-solid.png")).getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH)));  // Set icon for Management User
+        absensiButton.setIcon(new ImageIcon(new ImageIcon(getClass().getClassLoader().getResource("assets/user-solid.png")).getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH)));  // Set icon for Absensi
+        allAbsensiButton.setIcon(new ImageIcon(new ImageIcon(getClass().getClassLoader().getResource("assets/user-solid.png")).getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH)));  // Set icon for All Absensi
 
         // Add Action Listeners to Drawer Buttons
         dashboardButton.addActionListener(e -> showContent("Dashboard", this));
@@ -96,6 +120,8 @@ public class Drawer extends JFrame {
         pemeriksaanButton.addActionListener(e -> showContent("Pemeriksaan", this));
         pembukuanButton.addActionListener(e -> showContent("Pembukuan", this));
         userButton.addActionListener(e -> showContent("User", this));
+        absensiButton.addActionListener(e -> showContent("Absensi", this));
+        allAbsensiButton.addActionListener(e -> showContent("AllAbsensi", this));
 
         // Add Components to Drawer
         drawerPanel.add(toggleButton);
@@ -107,6 +133,8 @@ public class Drawer extends JFrame {
         drawerPanel.add(pemeriksaanButton);
         drawerPanel.add(pembukuanButton);
         drawerPanel.add(userButton);
+        drawerPanel.add(absensiButton);
+        drawerPanel.add(allAbsensiButton);
 
         switch (role) {
             case 1 -> {
@@ -118,6 +146,8 @@ public class Drawer extends JFrame {
                 pemeriksaanButton.setVisible(false);
                 pembukuanButton.setVisible(false);
                 userButton.setVisible(false);
+                absensiButton.setVisible(true);
+                allAbsensiButton.setVisible(false);
             }
             case 2 -> {
                 toggleButton.setVisible(true);
@@ -128,6 +158,8 @@ public class Drawer extends JFrame {
                 pemeriksaanButton.setVisible(true);
                 pembukuanButton.setVisible(false);
                 userButton.setVisible(false);
+                absensiButton.setVisible(true);
+                allAbsensiButton.setVisible(false);
             }
             case 3 -> {
                 toggleButton.setVisible(true);
@@ -138,6 +170,8 @@ public class Drawer extends JFrame {
                 pemeriksaanButton.setVisible(true);
                 pembukuanButton.setVisible(true);
                 userButton.setVisible(true);
+                absensiButton.setVisible(true);
+                allAbsensiButton.setVisible(true);
             }
             default -> {
             }
@@ -210,6 +244,13 @@ public class Drawer extends JFrame {
             mainPanel.add(new Pembukuan(), BorderLayout.CENTER);
         } else if (section.equals("User")) {
             mainPanel.add(new User().getContentPane(), BorderLayout.CENTER);
+        } else if (section.equals("Absensi")) {
+            if (absensiInstance == null) {
+                absensiInstance = new Absensi();
+            }
+            mainPanel.add(absensiInstance.getContentPane(), BorderLayout.CENTER);
+        } else if (section.equals("AllAbsensi")) {
+            mainPanel.add(new AllAbsensi().getContentPane(), BorderLayout.CENTER);
         } else {
             contentLabel.setText("Currently Viewing: " + section);
             mainPanel.add(contentLabel, BorderLayout.CENTER);
@@ -224,7 +265,7 @@ public class Drawer extends JFrame {
 
         if (isDrawerCollapsed) {
             drawerPanel.setPreferredSize(new Dimension(250, getHeight()));  // Expand drawer
-            toggleButton.setText("☰");  // Change to collapse icon/text
+            toggleButton.setText("");  // Change to collapse icon/text
             dashboardButton.setText(" Dashboard");
             pasienButton.setText(" Pasien");
             obatButton.setText(" Obat");
@@ -232,6 +273,8 @@ public class Drawer extends JFrame {
             pemeriksaanButton.setText(" Pemeriksaan");
             pembukuanButton.setText(" Pembukuan");
             userButton.setText(" Management User");
+            absensiButton.setText(" Absensi");
+            allAbsensiButton.setText(" All Absensi");
 
         } else {
             drawerPanel.setPreferredSize(new Dimension(50, getHeight()));
@@ -244,6 +287,8 @@ public class Drawer extends JFrame {
             pemeriksaanButton.setText("");
             pembukuanButton.setText("");
             userButton.setText("");
+            absensiButton.setText("");
+            allAbsensiButton.setText("");
 
             // Optionally, set the button size if needed to fit the icons
             dashboardButton.setPreferredSize(new Dimension(40, 40));
@@ -253,6 +298,8 @@ public class Drawer extends JFrame {
             pemeriksaanButton.setPreferredSize(new Dimension(40, 40));
             pembukuanButton.setPreferredSize(new Dimension(40, 40));
             userButton.setPreferredSize(new Dimension(40, 40));
+            absensiButton.setPreferredSize(new Dimension(40, 40));
+            allAbsensiButton.setPreferredSize(new Dimension(40, 40));
         }
         isDrawerCollapsed = !isDrawerCollapsed;
         revalidate();  // Refresh the layout

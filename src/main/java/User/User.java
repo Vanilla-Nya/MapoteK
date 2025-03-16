@@ -1,18 +1,35 @@
 package User;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.swing.AbstractCellEditor;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.SwingUtilities;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+
 import Components.CustomDialog;
 import Components.CustomTable.CustomTable;
 import Components.CustomTextField;
 import Components.RoundedButton;
 import Components.RoundedPanel;
 import DataBase.QueryExecutor;
-import java.awt.*;
-import java.util.Map;
-import java.util.Optional;
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableCellRenderer;
 
 public class User extends JFrame {
 
@@ -364,13 +381,14 @@ public class User extends JFrame {
             // Open the EditUser window and pass the data for editing
             new EditUser(
                     (String) model.getValueAt(row, 1),
-                    (updatedName, updatedRole, jenis_kelamin, updatedPhone, updatedAddress) -> {
+                    (updatedName, updatedRole, jenis_kelamin, updatedPhone, updatedAddress, updatedRFID) -> {
                         // Update the table with the updated values
                         model.setValueAt(updatedName, row, 3);
                         model.setValueAt(updatedRole, row, 2);
                         model.setValueAt(jenis_kelamin, row, 4);
                         model.setValueAt(updatedAddress, row, 5);
                         model.setValueAt(updatedPhone, row, 6);
+                        model.setValueAt(updatedRFID, row, 7); // Assuming RFID is added to the table model
                     }
             ).setVisible(true);
         }

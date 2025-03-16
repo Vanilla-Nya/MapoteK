@@ -1,5 +1,23 @@
 package Pembukuan;
 
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.DecimalFormat;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import Components.CustomDatePicker;
 import Components.CustomPanel;
 import Components.CustomTable.CustomTable;
@@ -8,25 +26,6 @@ import Components.Dropdown;
 import Components.RoundedButton;
 import DataBase.QueryExecutor;
 import Pengeluaran.Pengeluaran;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.element.Table;
-import com.itextpdf.layout.properties.TextAlignment;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
 
 public class Pembukuan extends JPanel {
 
@@ -152,12 +151,12 @@ public class Pembukuan extends JPanel {
             }
         });
 
-        // Export to Excel Button
-        RoundedButton exportButton = new RoundedButton("Ekspor ke Excel");
+        // Export to Word Button
+        RoundedButton exportButton = new RoundedButton("Ekspor ke Word");
         exportButton.setBackground(new Color(33, 150, 243));
         exportButton.setForeground(Color.WHITE);
 
-        // Add Action Listener for Export to PDF
+        // Add Action Listener for Export to Word
         exportButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -167,20 +166,20 @@ public class Pembukuan extends JPanel {
                     return;
                 }
 
-                // Create a file chooser to let user choose where to save the PDF
+                // Create a file chooser to let user choose where to save the Word document
                 JFileChooser fileChooser = new JFileChooser();
-                fileChooser.setDialogTitle("Save PDF");
-                fileChooser.setSelectedFile(new File("report.pdf"));
+                fileChooser.setDialogTitle("Save Word Document");
+                fileChooser.setSelectedFile(new File("report.docx"));
 
                 int result = fileChooser.showSaveDialog(Pembukuan.this);
                 if (result == JFileChooser.APPROVE_OPTION) {
                     File selectedFile = fileChooser.getSelectedFile();
                     try {
-                        // Call the exportToPdf method and pass the selected file path
-                        exportToPdf(selectedFile.getAbsolutePath());
-                        JOptionPane.showMessageDialog(Pembukuan.this, "PDF berhasil diekspor!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                    } catch (IOException ex) {
-                        JOptionPane.showMessageDialog(Pembukuan.this, "Error exporting PDF: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                        // Call the exportToWord method and pass the selected file path
+                        exportToWord(selectedFile.getAbsolutePath());
+                        JOptionPane.showMessageDialog(Pembukuan.this, "Word document berhasil diekspor!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(Pembukuan.this, "Error exporting Word document: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }
@@ -214,48 +213,102 @@ public class Pembukuan extends JPanel {
         });
     }
 
-    private void exportToPdf(String filePath) throws IOException {
-        // Create the PDF writer
-        PdfWriter writer = new PdfWriter(filePath);
-        PdfDocument pdf = new PdfDocument(writer);
-        Document document = new Document(pdf);
-
-        // Load the Times New Roman font from file (ensure the path is correct)
-        // If you want to embed Times New Roman, make sure the font is available at this location
-//        PdfFont font = PdfFontFactory.createFont("resources/fonts/TimesNewRoman.ttf", PdfFontFactory.EmbeddingStrategy.PREFER_EMBEDDED);
-        // Add a title to the document with the Times New Roman font and custom styling
-        Paragraph title = new Paragraph("Laporan Pembukuan")
-                //                .setFont(font) // Use Times New Roman
-                .setFontSize(20)
-                .setTextAlignment(TextAlignment.CENTER);
-        document.add(title);
-
-        // Create a table with the same number of columns as your table model
-        Table table = new Table(model.getColumnCount());
-
-        // Set table width to 100% of the page width
-        table.setWidth(100);  // 100% width
-
-        // Add table headers (Column names)
-        table.addHeaderCell("Tanggal");
-        table.addHeaderCell("Deskripsi");
-        table.addHeaderCell("Banyak");
-        table.addHeaderCell("Jenis");
-
-        // Add data from the table model
-        int rowCount = model.getRowCount();
-        for (int row = 0; row < rowCount; row++) {
-            table.addCell((String) model.getValueAt(row, 0).toString());  // Tanggal
-            table.addCell((String) model.getValueAt(row, 1).toString());  // Deskripsi
-            table.addCell((String) model.getValueAt(row, 2).toString());  // Banyak
-            table.addCell((String) model.getValueAt(row, 3).toString());  // Jenis
+    private void exportToWord(String filePath) throws IOException {
+        // Ensure the file extension is .rtf
+        if (!filePath.endsWith(".rtf")) {
+            filePath = filePath.replace(".docx", ".rtf");
         }
 
-        // Add the table to the document
-        document.add(table);
+        // Create a temporary text file
+        String tempFilePath = filePath.replace(".rtf", ".txt");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFilePath))) {
+            // Write table headers
+            writer.write("Tanggal\tDeskripsi\tBanyak\tJenis");
+            writer.newLine();
 
-        // Close the document
-        document.close();
+            // Write table data
+            for (int row = 0; row < model.getRowCount(); row++) {
+                writer.write(model.getValueAt(row, 0).toString() + "\t");
+                writer.write(model.getValueAt(row, 1).toString() + "\t");
+                writer.write(model.getValueAt(row, 2).toString() + "\t");
+                writer.write(model.getValueAt(row, 3).toString());
+                writer.newLine();
+            }
+        }
+
+        // Convert the text file to a simple Word document format
+        convertTextToWord(tempFilePath, filePath);
+    }
+
+    private void convertTextToWord(String textFilePath, String wordFilePath) throws IOException {
+        List<String> lines = Files.readAllLines(Paths.get(textFilePath));
+        DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(wordFilePath))) {
+            writer.write("{\\rtf1\\ansi\\deff0");
+            writer.newLine();
+            writer.write("{\\colortbl ;\\red255\\green99\\blue71;\\red34\\green139\\blue34;}");
+            writer.newLine();
+
+            double totalKeuntungan = 0.0;
+
+            for (String line : lines) {
+                writer.write("\\trowd\\trgaph108\\trleft-108");
+                writer.newLine();
+                writer.write("\\clbrdrt\\brdrs\\brdrw10\\clbrdrl\\brdrs\\brdrw10\\clbrdrb\\brdrs\\brdrw10\\clbrdrr\\brdrs\\brdrw10\\cellx2000");
+                writer.write("\\clbrdrt\\brdrs\\brdrw10\\clbrdrl\\brdrs\\brdrw10\\clbrdrb\\brdrs\\brdrw10\\clbrdrr\\brdrs\\brdrw10\\cellx4000");
+                writer.write("\\clbrdrt\\brdrs\\brdrw10\\clbrdrl\\brdrs\\brdrw10\\clbrdrb\\brdrs\\brdrw10\\clbrdrr\\brdrs\\brdrw10\\cellx6000");
+                writer.write("\\clbrdrt\\brdrs\\brdrw10\\clbrdrl\\brdrs\\brdrw10\\clbrdrb\\brdrs\\brdrw10\\clbrdrr\\brdrs\\brdrw10\\cellx8000");
+                writer.newLine();
+
+                String[] cells = line.split("\t");
+
+                // Determine the background color based on the "Jenis" column
+                String jenis = cells[3];
+                String bgColor = "";
+                if ("Pengeluaran".equalsIgnoreCase(jenis)) {
+                    bgColor = "\\clcbpat1";  // Red background
+                } else if ("Pemasukan".equalsIgnoreCase(jenis)) {
+                    bgColor = "\\clcbpat2";  // Green background
+                }
+
+                // Apply the background color to the "Jenis" cell only
+                writer.write("\\intbl " + cells[0] + "\\cell ");
+                writer.write("\\intbl " + cells[1] + "\\cell ");
+                writer.write("\\intbl " + cells[2] + "\\cell ");
+                writer.write(bgColor + "\\intbl " + cells[3] + "\\cell ");
+                writer.write("\\row");
+                writer.newLine();
+
+                // Calculate total keuntungan
+                if (!line.startsWith("Tanggal")) { // Skip header row
+                    try {
+                        double banyak = Double.parseDouble(cells[2].replace(",", ""));
+                        if ("Pemasukan".equalsIgnoreCase(cells[3])) {
+                            totalKeuntungan += banyak;
+                        } else if ("Pengeluaran".equalsIgnoreCase(cells[3])) {
+                            totalKeuntungan -= banyak;
+                        }
+                    } catch (NumberFormatException e) {
+                        // Handle the case where the number format is incorrect
+                        System.err.println("Error parsing number: " + cells[2]);
+                    }
+                }
+            }
+
+            // Add summary row for total keuntungan with merged cells
+            writer.write("\\trowd\\trgaph108\\trleft-108");
+            writer.newLine();
+            writer.write("\\clbrdrt\\brdrs\\brdrw10\\clbrdrl\\brdrs\\brdrw10\\clbrdrb\\brdrs\\brdrw10\\clbrdrr\\brdrs\\brdrw10\\cellx2000");
+            writer.write("\\clbrdrt\\brdrs\\brdrw10\\clbrdrl\\brdrs\\brdrw10\\clbrdrb\\brdrs\\brdrw10\\clbrdrr\\brdrs\\brdrw10\\cellx8000"); // Merge cells 2, 3, 4
+            writer.newLine();
+            writer.write("\\intbl\\qc Total Keuntungan\\cell \\intbl\\qc " + decimalFormat.format(totalKeuntungan) + "\\cell \\row");
+            writer.newLine();
+
+            writer.write("}");
+        }
+
+        // Delete the temporary text file
+        Files.delete(Paths.get(textFilePath));
     }
 
     private JPanel createFilterComponent(String label, JComponent component) {

@@ -19,10 +19,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
-/**
- *
- * @author asuna
- */
 public class Pasien extends JFrame implements OnPasienAddedListener, OnPasienUpdatedListener {
 
     private JLabel lblID, lblnik, lblNamaPasien, lblUmur, lblJenisKelamin, lblNoTelp, lblAlamat;
@@ -42,9 +38,10 @@ public class Pasien extends JFrame implements OnPasienAddedListener, OnPasienUpd
             for (Map<String, Object> result : results) {
                 var alamat = "".equals(result.get("alamat").toString()) ? "-" : result.get("alamat");
                 var no_telp = "".equals(result.get("no_telp").toString()) ? "-" : result.get("no_telp");
+                var rfid = result.get("rfid") != null ? result.get("rfid").toString() : "-"; // Handle null RFID
                 Object[] dataFromDatabase = new Object[]{
                     result.get("id_pasien"), result.get("nik"), result.get("nama_pasien"), result.get("umur"),
-                    result.get("jenis_kelamin"), alamat, no_telp, ""
+                    result.get("jenis_kelamin"), alamat, no_telp, rfid, ""
                 };
 
                 // Create a new array with an additional row
@@ -84,9 +81,7 @@ public class Pasien extends JFrame implements OnPasienAddedListener, OnPasienUpd
         // Add components to the frame
         add(headerPanel, BorderLayout.NORTH);
         add(searchPanel, BorderLayout.NORTH);
-//        add(detailPanel, BorderLayout.CENTER);
         add(mainPanel, BorderLayout.CENTER);
-        // Create and add the custom title bar
     }
 
     private JScrollPane createTablePanel() {
@@ -94,16 +89,16 @@ public class Pasien extends JFrame implements OnPasienAddedListener, OnPasienUpd
         // Table data and columns setup
         String[] columnNames;
         if (role == 1) {
-            columnNames = new String[]{"ID", "NIK", "Nama pasien", "Umur", "Jenis Kelamin", "Alamat", "No.Telp"};
+            columnNames = new String[]{"ID", "NIK", "Nama pasien", "Umur", "Jenis Kelamin", "Alamat", "No.Telp", "RFID"};
         } else {
-            columnNames = new String[]{"ID", "NIK", "Nama pasien", "Umur", "Jenis Kelamin", "Alamat", "No.Telp", "Aksi"};
+            columnNames = new String[]{"ID", "NIK", "Nama pasien", "Umur", "Jenis Kelamin", "Alamat", "No.Telp", "RFID", "Aksi"};
         }
 
         // Table model
         model = new DefaultTableModel(data, columnNames) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 7; // Only "Aksi" column is editable
+                return column == 8; // Only "Aksi" column is editable
             }
         };
 
@@ -127,6 +122,7 @@ public class Pasien extends JFrame implements OnPasienAddedListener, OnPasienUpd
                     String gender = (String) model.getValueAt(row, 4);
                     String address = (String) model.getValueAt(row, 5);
                     String phone = (String) model.getValueAt(row, 6);
+                    String rfid = (String) model.getValueAt(row, 7);
 
                     // Update labels with selected data, including labels with prefixes
                     lblID.setText(id);
@@ -154,8 +150,9 @@ public class Pasien extends JFrame implements OnPasienAddedListener, OnPasienUpd
         table.getColumnModel().getColumn(4).setPreferredWidth(100);
         table.getColumnModel().getColumn(5).setPreferredWidth(50);
         table.getColumnModel().getColumn(6).setPreferredWidth(100);
+        table.getColumnModel().getColumn(7).setPreferredWidth(100);
         if (role != 1) {
-            table.getColumnModel().getColumn(7).setPreferredWidth(200);
+            table.getColumnModel().getColumn(8).setPreferredWidth(200);
         }
     }
 
@@ -182,7 +179,6 @@ public class Pasien extends JFrame implements OnPasienAddedListener, OnPasienUpd
         addButton.setFont(new Font("Arial", Font.BOLD, 14));
         addButton.setPreferredSize(new Dimension(150, 40));
         addButton.addActionListener(e -> SwingUtilities.invokeLater(() -> new RegisterPasien(Pasien.this, model).setVisible(true)));
-//        addButton.addActionListener(e -> new RegisterPasien(onPasienAdded(id, name, age, gender, phone, address), model).setVisible(true));
 
         // Search field with button (left side)
         CustomTextField searchField = new CustomTextField("Cari Pasien", 20, 30, Optional.empty());
@@ -212,16 +208,6 @@ public class Pasien extends JFrame implements OnPasienAddedListener, OnPasienUpd
         if (role != 1) {
             searchPanel.add(addButton, BorderLayout.EAST);      // "Tambahkan Pasien" button on right
         }
-
-        // Search functionality
-        searchButton.addActionListener(e -> {
-            String searchText = searchField.getText().trim().toLowerCase();
-            if (!searchText.isEmpty()) {
-                filterTable(searchText);
-            } else {
-                resetTable();
-            }
-        });
 
         return searchPanel;
     }
@@ -323,7 +309,7 @@ public class Pasien extends JFrame implements OnPasienAddedListener, OnPasienUpd
     }
 
     @Override
-    public void onPasienUpdated(String nik, String name, String age, String gender, String phone, String address) {
+    public void onPasienUpdated(String nik, String name, String age, String gender, String phone, String address, String rfid) {
         // Handle updating the patient in your model or UI
         int selectedRow = getSelectedRowInTable(); // Get the selected row in the table
 
@@ -335,6 +321,7 @@ public class Pasien extends JFrame implements OnPasienAddedListener, OnPasienUpd
             model.setValueAt(gender, selectedRow, 4); // Update gender
             model.setValueAt(address, selectedRow, 5); // Update address
             model.setValueAt(phone, selectedRow, 6); // Update phone number
+            model.setValueAt(rfid, selectedRow, 7); // Update RFID
         }
     }
 
@@ -398,9 +385,10 @@ public class Pasien extends JFrame implements OnPasienAddedListener, OnPasienUpd
                         String gender = (String) model.getValueAt(row, 4);
                         String address = (String) model.getValueAt(row, 5);
                         String phone = "-".equals((String) model.getValueAt(row, 6)) ? "0" : (String) model.getValueAt(row, 6);
+                        String rfid = (String) model.getValueAt(row, 7);
 
                         SwingUtilities.invokeLater(() -> {
-                            new EditPasien(id, nik, name, age, gender, phone, address, Pasien.this);
+                            new EditPasien(id, nik, name, age, gender, phone, address, rfid, Pasien.this);
                         });
                     }
                 }

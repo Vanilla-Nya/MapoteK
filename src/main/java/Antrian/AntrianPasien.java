@@ -6,10 +6,12 @@ import Components.Dropdown;
 import Components.RoundedButton;
 import DataBase.QueryExecutor;
 import Global.UserSessionCache;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -281,6 +283,7 @@ public class AntrianPasien extends JPanel {
                 });
                 panel.add(terimaButton);
             }
+
             // Add "HAPUS" button
             JButton hapusButton = new RoundedButton("HAPUS");
             hapusButton.setBackground(new Color(255, 51, 51));
@@ -349,5 +352,48 @@ public class AntrianPasien extends JPanel {
         public Object getCellEditorValue() {
             return null;
         }
+    }
+
+    private Object[] getPatientData(int row) {
+        // Retrieve patient data from the table row
+        Object[] patientData = new Object[11];
+        patientData[1] = model.getValueAt(row, 2); // Name
+        patientData[2] = model.getValueAt(row, 2); // Age (assuming it's in the same column for simplicity)
+        patientData[9] = model.getValueAt(row, 2); // Gender (assuming it's in the same column for simplicity)
+        // Add other necessary patient data here
+        return patientData;
+    }
+
+    private List<Object[]> getDrugData(int row) {
+        // Retrieve drug data for the patient from the database
+        List<Object[]> drugData = new ArrayList<>();
+        QueryExecutor executor = new QueryExecutor();
+        String query = "SELECT nama_obat, jenis_obat, jumlah, harga, cara_penggunaan FROM detail_pembayaran WHERE id_antrian = ?";
+        Object[] parameter = new Object[]{idList.get(row)};
+        List<Map<String, Object>> results = executor.executeSelectQuery(query, parameter);
+
+        for (Map<String, Object> result : results) {
+            Object[] drug = new Object[]{
+                result.get("nama_obat"),
+                result.get("jenis_obat"),
+                result.get("jumlah"),
+                result.get("harga"),
+                result.get("cara_penggunaan")
+            };
+            drugData.add(drug);
+        }
+        return drugData;
+    }
+
+    private double calculateTotal(List<Object[]> drugData) {
+        // Calculate the total price of the drugs
+        double total = 0;
+        for (Object[] drug : drugData) {
+            int quantity = (int) drug[2];
+            Number priceNumber = (Number) drug[3]; // Cast to Number to handle both Integer and Double
+            double price = priceNumber.doubleValue(); // Convert to double
+            total += quantity * price;
+        }
+        return total;
     }
 }

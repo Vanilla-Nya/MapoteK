@@ -14,24 +14,17 @@ import Components.Dropdown;
 import Components.RoundedButton;
 import DataBase.QueryExecutor;
 import Global.UserSessionCache;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.Map;
 
-/**
- *
- * @author Luna
- */
 public class EditUser extends JFrame {
 
-    private CustomTextField txtName, txtphoneNum, txtAddress;
+    private CustomTextField txtName, txtphoneNum, txtAddress, txtRFID;
     private Dropdown cbGender, txtRole;
     private OnUserUpdatedListener listener;
     private CustomDatePicker customDatePicker;
 
     public EditUser(String userId, OnUserUpdatedListener listener) {
         QueryExecutor executor = new QueryExecutor();
-        String queryPengeluaran = "CALL all_user";
         // Query to get user data by ID
         String query = "SELECT user.*, role.nama_role as role FROM user JOIN user_role ON user.id_user = user_role.id_user JOIN role ON user_role.id_role = role.id_role WHERE user.id_user = ?";
         
@@ -51,11 +44,12 @@ public class EditUser extends JFrame {
         String gender = (String) userData.get("jenis_kelamin");
         String address = (String) userData.get("alamat");
         String phone = (String) userData.get("no_telp");
+        String rfid = (String) userData.get("rfid");
         
         this.listener = listener;
 
         setTitle("Edit Data User");
-        setSize(450, 400);
+        setSize(450, 500);  // Increased size to accommodate RFID field
         setLayout(new GridBagLayout());
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -110,9 +104,17 @@ public class EditUser extends JFrame {
         ((AbstractDocument) txtphoneNum.getTextField().getDocument()).setDocumentFilter(new TypeNumberHelper(13)); // Limit to 13 digits
         formPanel.add(txtphoneNum, gbc);
 
-        // Submit button with RoundedButton
+        // RFID field
         gbc.gridx = 0;
         gbc.gridy = 7;
+        formPanel.add(new JLabel("RFID"), gbc);
+        gbc.gridx = 1;
+        txtRFID = new CustomTextField("RFID", 20, 15, Optional.empty());
+        formPanel.add(txtRFID, gbc);
+
+        // Submit button with RoundedButton
+        gbc.gridx = 0;
+        gbc.gridy = 8;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         RoundedButton btnSave = new RoundedButton("Submit");
@@ -126,6 +128,7 @@ public class EditUser extends JFrame {
                 String updatedGender = (String) cbGender.getSelectedItem();
                 String updatedAddress = txtAddress.getText();
                 String updatedPhone = txtphoneNum.getText();
+                String updatedRFID = txtRFID.getText();
                 
                 UserSessionCache cache = new UserSessionCache();
                 String uuid = cache.getUUID();
@@ -155,15 +158,15 @@ public class EditUser extends JFrame {
                     }
 
                     // Step 4: Update the user table with the other information
-                    String updateQuery = "UPDATE user SET username = ?, jenis_kelamin = ?, no_telp = ?, alamat = ? WHERE id_user = ?";
+                    String updateQuery = "UPDATE user SET username = ?, jenis_kelamin = ?, no_telp = ?, alamat = ?, rfid = ? WHERE id_user = ?";
                     boolean success = executor.executeUpdateQuery(updateQuery, new Object[]{
-                        updatedName, updatedGender, updatedPhone, updatedAddress, userId
+                        updatedName, updatedGender, updatedPhone, updatedAddress, updatedRFID, userId
                     });
                     
                     if (success) {
                         JOptionPane.showMessageDialog(EditUser.this, "User data updated successfully.");
                         if (listener != null) {
-                            listener.onUserUpdated(updatedName, updateRole, updatedGender, updatedPhone, updatedAddress);
+                            listener.onUserUpdated(updatedName, updateRole, updatedGender, updatedPhone, updatedAddress, updatedRFID);
                         }
                         dispose(); // Close the window
                     } else {
@@ -186,13 +189,13 @@ public class EditUser extends JFrame {
         cbGender.setSelectedItem(gender);
         txtphoneNum.setText(phone);
         txtAddress.setText(address);
+        txtRFID.setText(rfid);
         setLocationRelativeTo(null);
         setVisible(true);
     }
 
-    // Listener interface for updating the pasien data
+    // Listener interface for updating the user data
     public interface OnUserUpdatedListener {
-
-        void onUserUpdated(String name, String role, String gender, String phone, String address);
+        void onUserUpdated(String name, String role, String gender, String phone, String address, String rfid);
     }
 }

@@ -8,12 +8,9 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.RenderingHints;
 import java.util.Map;
 import java.util.Optional;
 
@@ -48,27 +45,6 @@ import Main.Drawer;
  * @author asuna
  */
 
-class CurvedPanel extends JPanel {
-    @Override
-protected void paintComponent(Graphics g) {
-  super.paintComponent(g);
-  
-  Graphics2D g2d = (Graphics2D) g;
-  g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-  
-  // Warna hijau kebiruan
-  Color teal = new Color(0, 150, 136);
-  g2d.setColor(teal);
-  
-  // Buat kurva dengan shape ellipse yang sebagian ditampilkan
-  int width = getWidth();
-  int height = getHeight();
-  g2d.fillRect(0, 0, width, height);
-  
-  g2d.setColor(Color.WHITE);
-  g2d.fillOval(width / 2 - 10, -100, width, height + 200);
-}
-}
 
 public class Login extends JFrame {
 
@@ -87,25 +63,63 @@ public class Login extends JFrame {
         UIManager.put("TextComponent.arc", 15);
 
         // Create a main container with GridBagLayout
-        JPanel mainPanel = new CustomPanel(25); // Use CustomPanel with radius 25
+        CustomPanel mainPanel = new CustomPanel(25);
+        mainPanel.setCurved(true); // Set the panel to be curved
         mainPanel.setLayout(new GridBagLayout());
         add(mainPanel);
 
+        // Create the left panel
+        JPanel leftPanel = new JPanel();
+        leftPanel.setBackground(new Color(0, 0, 0, 0)); // Set background to transparent
+        leftPanel.setOpaque(false); // Make panel transparent
+        leftPanel.setPreferredSize(new Dimension(400, getHeight())); // Set size to half of the full page
+        leftPanel.setLayout(new GridBagLayout());
+
+        // Create the right panel and position it
+        JPanel rightPanel = new JPanel();
+        rightPanel.setBackground(new Color(0, 0, 0, 0)); // Set background to transparent
+        rightPanel.setOpaque(false); // Make panel transparent
+        rightPanel.setPreferredSize(new Dimension(400, getHeight())); // Set size to half of the full page
+        rightPanel.setLayout(new GridBagLayout());
+
         // Create the login card panel and position it
         JPanel cardPanel = createLoginCard();
-        cardPanel.setOpaque(false);
+        cardPanel.setOpaque(false); // Ensure the panel is transparent
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0; // Move the card panel to the second column to shift it to the right
+        gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.weightx = 1;
-        gbc.insets = new Insets(0, 30, 0, 0); // Add padding to the left to shift right
-        gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(cardPanel, gbc);
+        gbc.weightx = 1.0; // Allow horizontal expansion
+        gbc.weighty = 1.0; // Allow vertical expansion
+        gbc.insets = new Insets(0, 0, 0, 0); // Add padding to the left to shift right
+        gbc.anchor = GridBagConstraints.CENTER; // Center the card panel
+        gbc.fill = GridBagConstraints.BOTH; // Make the card panel fill the space
+        leftPanel.add(cardPanel, gbc);
+
+        // Add panels to main panel
+        GridBagConstraints mainGbc = new GridBagConstraints();
+        mainGbc.insets = new Insets(0, 0, 0, 0);
+        mainGbc.gridx = 0;
+        mainGbc.gridy = 0;
+        mainGbc.gridwidth = 1; // Make the left panel span across the left half
+        mainGbc.anchor = GridBagConstraints.WEST; // Align the left panel to the left
+        mainGbc.fill = GridBagConstraints.BOTH; // Make the left panel fill the space
+        mainGbc.weightx = 0.5; // Set weight for horizontal resizing
+        mainGbc.weighty = 1.0; // Set weight for vertical resizing
+        mainPanel.add(leftPanel, mainGbc);
+
+        mainGbc.gridx = 1;
+        mainGbc.gridy = 0;
+        mainGbc.gridwidth = 1; // Make the right panel span across the right half
+        mainGbc.anchor = GridBagConstraints.EAST; // Align the right panel to the right
+        mainGbc.fill = GridBagConstraints.BOTH; // Make the right panel fill the space
+        mainGbc.weightx = 0.5; // Set weight for horizontal resizing
+        mainGbc.weighty = 1.0; // Set weight for vertical resizing
+        mainPanel.add(rightPanel, mainGbc);
     }
 
     private JPanel createLoginCard() {
-        JPanel cardPanel = new RoundedPanel(25, new Color(0, 150, 136)); // Match the color
+        JPanel cardPanel = new RoundedPanel(25, new Color(0, 0, 0, 0)); // Set background to transparent
         cardPanel.setLayout(new GridBagLayout());
         cardPanel.setBorder(new CompoundBorder(
                 new LineBorder(new Color(0, 128, 96), 1, true),
@@ -145,9 +159,9 @@ public class Login extends JFrame {
 
         registerlink.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                // Open the Login window when the login link is clicked
+                // Open the Register window when the register link is clicked
                 new Register().setVisible(true);
-                dispose(); // Close the Register window
+                dispose(); // Close the Login window
             }
         });
 
@@ -175,7 +189,7 @@ public class Login extends JFrame {
             String query;
             Object[] parameter;
 
-            if (usernameOrRFID.matches("\\d{10}")) { // Check if input is a 16-digit numeric (RFID)
+            if (usernameOrRFID.matches("\\d{10}")) { // Check if input is a 10-digit numeric (RFID)
                 // Login using RFID
                 query = "CALL login_with_rfid(?)";
                 parameter = new Object[]{usernameOrRFID};
@@ -188,7 +202,6 @@ public class Login extends JFrame {
             java.util.List<Map<String, Object>> results = executor.executeSelectQuery(query, parameter);
             if (!results.isEmpty()) {
                 Map<String, Object> getData = results.get(0);
-                System.err.println(getData);
                 Long code = (Long) getData.get("code");
                 if (code.equals(200L)) {
                     String uuid = (String) getData.get("user_id");
@@ -196,8 +209,23 @@ public class Login extends JFrame {
                     UserSessionCache cache = new UserSessionCache();
                     cache.login(username, uuid);
                     JOptionPane.showMessageDialog(Login.this, "Selamat Datang " + getData.get("nama_lengkap"), (String) getData.get("message"), JOptionPane.INFORMATION_MESSAGE);
-                    new Drawer().setVisible(true);
-                    this.dispose();
+                    
+                    // Debugging statements
+                    System.out.println("Login successful. User ID: " + uuid + ", Username: " + username);
+                    
+                    // Instantiate Drawer and make it visible
+                    Drawer drawer = new Drawer();
+                    drawer.setVisible(true);
+                    
+                    // Debugging statement
+                    System.out.println("Drawer instantiated and set visible.");
+                    
+                    // Ensure Drawer is visible before disposing of Login window
+                    if (drawer.isVisible()) {
+                        this.dispose();
+                    } else {
+                        System.out.println("Drawer is not visible. Login window will not be closed.");
+                    }
                 } else {
                     JOptionPane.showMessageDialog(Login.this, "Login gagal", (String) getData.get("message"), JOptionPane.ERROR_MESSAGE);
                 }
@@ -244,7 +272,6 @@ public class Login extends JFrame {
                     java.util.List<Map<String, Object>> results = executor.executeSelectQuery(query, parameter);
                     if (!results.isEmpty()) {
                         Map<String, Object> getData = results.get(0);
-                        System.err.println(getData);
                         Long code = (Long) getData.get("code");
                         if (code.equals(200L)) {
                             String uuid = (String) getData.get("user_id");

@@ -1,5 +1,41 @@
 package TransaksiDiagnosa;
 
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.HeadlessException;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.swing.AbstractCellEditor;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+
 import Components.CustomDialog;
 import Components.CustomPanel;
 import Components.CustomTable.CustomTable;
@@ -8,19 +44,6 @@ import Components.RoundedBorder;
 import Components.RoundedButton;
 import DataBase.QueryExecutor;
 import Global.UserSessionCache;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Optional;
-import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableCellRenderer;
 
 public class TransaksiDiagnosa extends JFrame {
 
@@ -38,6 +61,8 @@ public class TransaksiDiagnosa extends JFrame {
     private int previousValue = 0;
     private long id_pemeriksaan;
     java.util.List idList = new ArrayList<>();
+    private Object[] patientData;
+    private List<Object[]> drugData;
 
     public TransaksiDiagnosa(OnPemeriksaanUpdatedListener listener, Object[] dataFromParent) {
         System.out.println(Arrays.toString(dataFromParent));
@@ -148,10 +173,10 @@ public class TransaksiDiagnosa extends JFrame {
         // Create a panel for Drug info with left alignment
         JPanel drugInfoPanel = new JPanel();
         drugInfoPanel.setLayout(new BoxLayout(drugInfoPanel, BoxLayout.Y_AXIS));  // Left-align patient info
-        String[] columnNames = {"NAMA OBAT", "JENIS OBAT", "JUMLAH", "HARGA", "AKSI"};
+        String[] columnNames = {"NAMA OBAT", "JENIS OBAT", "JUMLAH", "HARGA", "CARA PENGGUNAAN", "AKSI"};
         model = new DefaultTableModel(data, columnNames) {
             public boolean isCellEditable(int row, int column) {
-                return column == 4;  // Only "AKSI" column is editable
+                return column == 5;  // Only "AKSI" column is editable
             }
         };
         CustomTable table = new CustomTable(model);
@@ -202,7 +227,7 @@ public class TransaksiDiagnosa extends JFrame {
             String uuid = (String) cache.getUUID();
             String diagnosis = diagnosisTextArea.getText();
             int rowCount = model.getRowCount();
-            Object[][] row = new Object[rowCount][4];  // 3 columns (name, jumlah, harga)
+            Object[][] row = new Object[rowCount][5];  // 5 columns (name, type, jumlah, harga, usage)
             boolean isDone = false;
             boolean isFinal = false;
             String getIdQuery = "SELECT id_detail_pemeriksaan FROM detail_pemeriksaan ORDER BY id_detail_pemeriksaan DESC LIMIT 1";
@@ -219,9 +244,22 @@ public class TransaksiDiagnosa extends JFrame {
             for (int i = 0; i < rowCount; i++) {
                 Object id = idList.get(i);
                 Object name = model.getValueAt(i, 0);   // Get value at (row, column 0)
+                Object type = model.getValueAt(i, 1);  // Get value at (row, column 1)
                 Object jumlah = model.getValueAt(i, 2); // Get value at (row, column 2)
                 Object harga = model.getValueAt(i, 3);  // Get value at (row, column 3)
-                int hargaJasaText = Integer.parseInt(hargaJasa.getText());
+                Object usage = model.getValueAt(i, 4);  // Get value at (row, column 4)
+                int hargaJasaText = 0;
+                if (!hargaJasa.getText().isEmpty()) {
+                    try {
+                        hargaJasaText = Integer.parseInt(hargaJasa.getText());
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(this, "Harga Jasa tidak valid!", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "Harga Jasa harus diisi!", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
                 // insert into pemeriksaan obat id, jumlah get id pemeriksaan_obat
                 String insertObatQuery = "INSERT INTO pemeriksaan_obat (id_obat, jumlah) VALUES (?,?)";
                 Object[] parameter = new Object[]{id, jumlah};
@@ -232,11 +270,23 @@ public class TransaksiDiagnosa extends JFrame {
                     Object[] parameterInsertDetail = new Object[]{id_pemeriksaan + 1, insertObat, hargaJasaText, total};
                     isDone = QueryExecutor.executeInsertQuery(insertDetailPemeriksaan, parameterInsertDetail);
                 }
-                // insert into pemeriksaan
-                // insety into pemasukan harian
+                // Remove the code related to detail_pembayaran
+                // Ensure the value is a String and truncate if necessary
+                String idAntrian = dataFromParent[8].toString();
+                if (idAntrian.length() > 25) {
+                    idAntrian = idAntrian.substring(0, 25);
+                }
+
+                // Debugging statement to log the value of idAntrian
+                System.out.println("Inserting into detail_pembayaran with id_antrian: " + idAntrian);
+
+                // Remove the insert into detail_pembayaran
+                // String insertDetailPembayaran = "INSERT INTO detail_pembayaran(id_antrian, nama_obat, jenis_obat, jumlah, harga, cara_penggunaan) VALUES (?,?,?,?,?,?)";
+                // Object[] parameterDetailPembayaran = new Object[]{idAntrian, name, type, jumlah, harga, usage};
+                // QueryExecutor.executeInsertQuery(insertDetailPembayaran, parameterDetailPembayaran);
 
                 // Store the data in the row array
-                row[i] = new Object[]{id, name, jumlah, harga};
+                row[i] = new Object[]{name, type, jumlah, harga, usage};
             }
             if (isDone) {
                 try {
@@ -254,10 +304,10 @@ public class TransaksiDiagnosa extends JFrame {
                     }
                     if (isFinal) {
                         String QueryUpdate = "UPDATE antrian SET status_antrian = ? WHERE id_antrian = ?";
-                        Object[] parameterUpdate = new Object[]{"Selesai", dataFromParent[8]};
+                        Object[] parameterUpdate = new Object[]{"Selesai Diperiksa", dataFromParent[8]}; // Update status to "Selesai Diperiksa"
                         boolean isChange = QueryExecutor.executeUpdateQuery(QueryUpdate, parameterUpdate);
                         if (isChange) {
-                            listener.onPasienUpdated((String) dataFromParent[8], (String) dataFromParent[10].toString(), (String) dataFromParent[2], "Selesai");
+                            listener.onPasienUpdated((String) dataFromParent[8], (String) dataFromParent[10].toString(), (String) dataFromParent[2], "Selesai Diperiksa"); // Notify listener with new status
                             JOptionPane.showMessageDialog(this, "Pemeriksaan Selesai", "Success", JOptionPane.INFORMATION_MESSAGE);
                             dispose();
                         } else {
@@ -333,6 +383,14 @@ public class TransaksiDiagnosa extends JFrame {
         });
     }
 
+    public Object[] getPatientData() {
+        return patientData;
+    }
+
+    public List<Object[]> getDrugData() {
+        return drugData;
+    }
+
     // Custom border class for rounded corners
     static class RoundBorder implements Border {
 
@@ -388,7 +446,7 @@ public class TransaksiDiagnosa extends JFrame {
         return 0;  // If drug doesn't exist, return 0 as the default stock value
     }
 
-    public void addOrUpdateDrug(int id, String name, String type, int quantity, double price) {
+    public void addOrUpdateDrug(int id, String name, String type, int quantity, double price, String usageInstructions) {
         // Check if the drug already exists in the table
         if (isDrugExists(name)) {
             // If the drug exists, check if the new quantity is less than or equal to the current stock
@@ -400,8 +458,8 @@ public class TransaksiDiagnosa extends JFrame {
             // If the drug exists and the quantity is more, update the stock
             updateDrugStock(name, quantity);
         } else {
-            // If the drug doesn't exist, add it as a new row with the specified stock and price
-            Object[] newRow = {name, type, quantity, price, ""};  // Default price 0.0 for new drug
+            // If the drug doesn't exist, add it as a new row with the specified stock, price, and usage instructions
+            Object[] newRow = {name, type, quantity, price, usageInstructions, ""};  // Default price 0.0 for new drug
             idList.add(id);
             model.addRow(newRow);
         }
@@ -523,10 +581,4 @@ public class TransaksiDiagnosa extends JFrame {
 
         void onPasienUpdated(String noAntrian, String idPasien, String nama_pasien, String status);
     }
-//    public static void main(String[] args) {
-//        SwingUtilities.invokeLater(() -> {
-//            TransaksiDiagnosa form = new TransaksiDiagnosa();
-//            form.setVisible(true);
-//        });
-//    }
 }

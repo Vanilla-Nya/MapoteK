@@ -1,17 +1,32 @@
 package Auth;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.HeadlessException;
+import java.awt.Insets;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.text.AbstractDocument;
+
+import Components.CustomPanel;
 import Components.CustomTextField;
 import Components.RoundedButton;
-import Components.RoundedPanel;
 import DataBase.QueryExecutor;
 import Global.UserSessionCache;
 import Helpers.TypeNumberHelper;
 import Main.Drawer;
-import java.awt.*;
-import java.util.Map;
-import java.util.Optional;
-import javax.swing.*;
-import javax.swing.text.AbstractDocument;
 
 public class Register extends JFrame {
 
@@ -21,69 +36,99 @@ public class Register extends JFrame {
         // Set frame properties
         setTitle("Mapotek Registration");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(600, 400);
+        setSize(800, 600); // Increase the size for better layout
         setLayout(new BorderLayout());
 
-        // Left panel for logo
-        JPanel leftPanel = new JPanel();
-        leftPanel.setBackground(Color.WHITE);
-        leftPanel.setPreferredSize(new Dimension(200, getHeight()));
-        leftPanel.setLayout(new GridBagLayout());
+        // Main container with curved panel
+        CustomPanel mainPanel = new CustomPanel(25);
+        mainPanel.setCurved(true); // Set the panel to be curved
+        mainPanel.setLayout(new GridBagLayout());
+        add(mainPanel);
+
+        // Right panel for logo
+        JPanel rightPanel = new JPanel();
+        rightPanel.setBackground(new Color(0, 0, 0, 0)); // Set background to transparent
+        rightPanel.setOpaque(false); // Make panel transparent
+        rightPanel.setPreferredSize(new Dimension(200, getHeight()));
+        rightPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbcRight = new GridBagConstraints();
+        gbcRight.gridx = 0;
+        gbcRight.gridy = 0;
+        gbcRight.insets = new Insets(0, 0, 0, 0); // Adjust insets to center the logo
+        gbcRight.anchor = GridBagConstraints.CENTER;
         JLabel logoLabel = new JLabel("MAPOTEK");
         logoLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        logoLabel.setForeground(new Color(0, 150, 136));
-        leftPanel.add(logoLabel);
+        logoLabel.setForeground(new Color(0, 160, 136));
+        rightPanel.add(logoLabel, gbcRight);
 
-        // Right panel for registration form
-        RoundedPanel rightPanel = new RoundedPanel(20, new Color(0, 150, 136));
-        rightPanel.setLayout(new GridBagLayout());
+        // Left panel for registration form
+        JPanel leftPanel = new JPanel();
+        leftPanel.setBackground(new Color(0, 0, 0, 0)); // Set background to transparent
+        leftPanel.setOpaque(false); // Make panel transparent
+        leftPanel.setPreferredSize(new Dimension(400, getHeight())); // Set size to half of the full page
+        leftPanel.setLayout(new GridBagLayout());
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.insets = new Insets(5, 5, 5, 20); // Add padding to the right to push components to the left
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.CENTER; // Center the components
 
         // Title
         JLabel titleLabel = new JLabel("BUAT AKUN");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
         titleLabel.setForeground(Color.WHITE);
+        titleLabel.setOpaque(false); // Make title transparent
+        titleLabel.setBackground(new Color(0, 0, 0, 0)); // Set background to transparent
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
-        rightPanel.add(titleLabel, gbc);
+        leftPanel.add(titleLabel, gbc);
 
         // Full name field
         fullNameField = new CustomTextField("Masukkan Nama Lengkap", 20, 15, Optional.empty());
+        fullNameField.setOpaque(false); // Make text field transparent
+        fullNameField.getTextField().setBackground(new Color(0, 0, 0, 0)); // Set background to transparent
         gbc.gridx = 0;
         gbc.gridy = 1;
-        gbc.gridwidth = 1;
-        rightPanel.add(fullNameField, gbc);
+        gbc.gridwidth = 2;
+        leftPanel.add(fullNameField, gbc);
 
-        // Full name field
+        // Phone number field
         nomerteleponField = new CustomTextField("No.Telp", 20, 15, Optional.empty());
+        nomerteleponField.setOpaque(false); // Make text field transparent
+        nomerteleponField.getTextField().setBackground(new Color(0, 0, 0, 0)); // Set background to transparent
         ((AbstractDocument) nomerteleponField.getTextField().getDocument()).setDocumentFilter(new TypeNumberHelper(13));
         gbc.gridx = 0;
         gbc.gridy = 2;
-        gbc.gridwidth = 1;
-        rightPanel.add(nomerteleponField, gbc);
+        gbc.gridwidth = 2;
+        leftPanel.add(nomerteleponField, gbc);
 
         // Username field
         usernameField = new CustomTextField("Masukkan Username", 20, 15, Optional.empty());
+        usernameField.setOpaque(false); // Make text field transparent
+        usernameField.getTextField().setBackground(new Color(0, 0, 0, 0)); // Set background to transparent
         gbc.gridx = 0;
         gbc.gridy = 3;
-        rightPanel.add(usernameField, gbc);
+        gbc.gridwidth = 2;
+        leftPanel.add(usernameField, gbc);
 
         // Password field
         passwordField = new CustomTextField("Masukkan Password", 20, 15, Optional.of(true));
+        passwordField.setOpaque(false); // Make text field transparent
+        passwordField.getTextField().setBackground(new Color(0, 0, 0, 0)); // Set background to transparent
         gbc.gridx = 0;
         gbc.gridy = 4;
-        rightPanel.add(passwordField, gbc);
+        gbc.gridwidth = 2;
+        leftPanel.add(passwordField, gbc);
 
         // Confirm Password field
         confirmCustomTextField = new CustomTextField("Konfirmasi Password", 20, 15, Optional.of(true));
+        confirmCustomTextField.setOpaque(false); // Make text field transparent
+        confirmCustomTextField.getTextField().setBackground(new Color(0, 0, 0, 0)); // Set background to transparent
         gbc.gridx = 0;
         gbc.gridy = 5;
-        rightPanel.add(confirmCustomTextField, gbc);
+        gbc.gridwidth = 2;
+        leftPanel.add(confirmCustomTextField, gbc);
 
         // Login link
         JLabel loginLink = new JLabel("sudah punya akun? login");
@@ -92,7 +137,8 @@ public class Register extends JFrame {
         loginLink.setHorizontalAlignment(SwingConstants.CENTER);
         gbc.gridx = 0;
         gbc.gridy = 6;
-        rightPanel.add(loginLink, gbc);
+        gbc.gridwidth = 2;
+        leftPanel.add(loginLink, gbc);
 
         loginLink.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -107,6 +153,8 @@ public class Register extends JFrame {
         registerButton.setBackground(new Color(76, 175, 80));
         registerButton.setForeground(Color.WHITE);
         registerButton.setFont(new Font("Arial", Font.BOLD, 16));
+        registerButton.setOpaque(false); // Make button transparent
+        registerButton.setContentAreaFilled(false); // Make button transparent
         registerButton.addActionListener(e -> {
             // Executor
             QueryExecutor executor = new QueryExecutor();
@@ -169,12 +217,29 @@ public class Register extends JFrame {
         });
         gbc.gridx = 0;
         gbc.gridy = 7;
-        gbc.gridwidth = 1;
-        rightPanel.add(registerButton, gbc);
+        gbc.gridwidth = 2;
+        leftPanel.add(registerButton, gbc);
 
-        // Add panels to frame
-        add(leftPanel, BorderLayout.WEST);
-        add(rightPanel, BorderLayout.CENTER);
+        // Add panels to main panel
+        GridBagConstraints mainGbc = new GridBagConstraints();
+        mainGbc.insets = new Insets(0, 0, 0, 0);
+        mainGbc.gridx = 0;
+        mainGbc.gridy = 0;
+        mainGbc.gridwidth = 1; // Make the left panel span across the left half
+        mainGbc.anchor = GridBagConstraints.WEST; // Align the left panel to the left
+        mainGbc.fill = GridBagConstraints.BOTH; // Make the left panel fill the space
+        mainGbc.weightx = 0.5; // Set weight for horizontal resizing
+        mainGbc.weighty = 1.0; // Set weight for vertical resizing
+        mainPanel.add(leftPanel, mainGbc);
+
+        mainGbc.gridx = 1;
+        mainGbc.gridy = 0;
+        mainGbc.gridwidth = 1; // Make the right panel span across the right half
+        mainGbc.anchor = GridBagConstraints.EAST; // Align the right panel to the right
+        mainGbc.fill = GridBagConstraints.BOTH; // Make the right panel fill the space
+        mainGbc.weightx = 0.5; // Set weight for horizontal resizing
+        mainGbc.weighty = 1.0; // Set weight for vertical resizing
+        mainPanel.add(rightPanel, mainGbc);
 
         // Make frame visible
         setVisible(true);
