@@ -30,7 +30,7 @@ import Main.Drawer;
 
 public class Register extends JFrame {
 
-    private CustomTextField fullNameField, nomerteleponField, usernameField, passwordField, confirmCustomTextField;
+    private CustomTextField fullNameField, nomerteleponField, usernameField, passwordField, confirmCustomTextField, rfidField;
 
     public Register() {
         // Set frame properties
@@ -130,13 +130,22 @@ public class Register extends JFrame {
         gbc.gridwidth = 2;
         leftPanel.add(confirmCustomTextField, gbc);
 
+        // RFID field
+        rfidField = new CustomTextField("Masukkan RFID", 20, 15, Optional.empty());
+        rfidField.setOpaque(false); // Make text field transparent
+        rfidField.getTextField().setBackground(new Color(0, 0, 0, 0)); // Set background to transparent
+        gbc.gridx = 0;
+        gbc.gridy = 6; // Adjust the position accordingly
+        gbc.gridwidth = 2;
+        leftPanel.add(rfidField, gbc);
+
         // Login link
         JLabel loginLink = new JLabel("sudah punya akun? login");
         loginLink.setForeground(Color.WHITE);
         loginLink.setCursor(new Cursor(Cursor.HAND_CURSOR));
         loginLink.setHorizontalAlignment(SwingConstants.CENTER);
         gbc.gridx = 0;
-        gbc.gridy = 6;
+        gbc.gridy = 7;
         gbc.gridwidth = 2;
         leftPanel.add(loginLink, gbc);
 
@@ -163,7 +172,9 @@ public class Register extends JFrame {
             String password = passwordField.getText();
             String confirmPassword = confirmCustomTextField.getText();
             String noTelp = nomerteleponField.getText();
-            if (name.isEmpty() || username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() || noTelp.isEmpty()) {
+            String rfid = rfidField.getText(); // Get RFID value
+
+            if (name.isEmpty() || username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() || noTelp.isEmpty() || rfid.isEmpty()) {
                 JOptionPane.showMessageDialog(Register.this, "Please fill in all fields.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -172,8 +183,8 @@ public class Register extends JFrame {
             } else {
                 // Step 1: Insert the user into the 'user' table
                 QueryExecutor queryExecutor = new QueryExecutor();  // Create instance of QueryExecutor
-                String insertUserQuery = "INSERT INTO user (nama_lengkap ,username, jenis_kelamin, alamat, no_telp, password) VALUES (?, ?, ?, ?, ?, ?)";
-                boolean userInserted = QueryExecutor.executeInsertQuery(insertUserQuery, new Object[]{name, name, "Tidak Bisa Dijelaskan", "", noTelp, password});
+                String insertUserQuery = "INSERT INTO user (nama_lengkap, username, jenis_kelamin, alamat, no_telp, password, rfid) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                boolean userInserted = QueryExecutor.executeInsertQuery(insertUserQuery, new Object[]{name, name, "Tidak Bisa Dijelaskan", "", noTelp, password, rfid});
 
                 if (!userInserted) {
                     JOptionPane.showMessageDialog(Register.this, "Failed to add user.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -216,7 +227,7 @@ public class Register extends JFrame {
             }
         });
         gbc.gridx = 0;
-        gbc.gridy = 7;
+        gbc.gridy = 8;
         gbc.gridwidth = 2;
         leftPanel.add(registerButton, gbc);
 

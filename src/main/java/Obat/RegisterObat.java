@@ -1,15 +1,9 @@
 package Obat;
 
-import Components.CustomDatePicker;
-import Components.CustomDialog;
-import Components.CustomTextField;
-import Components.Dropdown;
-import Components.RoundedButton;
-import DataBase.QueryExecutor;
-import Global.UserSessionCache;
-import Helpers.OnObatAddedListener;
-import Helpers.OnObatUpdateListener;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -21,15 +15,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import javax.swing.*;
+import java.util.logging.Logger;
+
+import javax.swing.BorderFactory;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
+import Components.CustomDatePicker;
+import Components.CustomDialog;
+import Components.CustomTextField;
+import Components.Dropdown;
+import Components.RoundedButton;
+import DataBase.QueryExecutor;
+import Global.UserSessionCache;
+import Helpers.OnObatAddedListener;
+import Helpers.OnObatUpdateListener;
 
 class RegisterObat extends JFrame {
+
+    private static final Logger LOGGER = Logger.getLogger(RegisterObat.class.getName());
 
     private OnObatAddedListener listener;
     private OnObatUpdateListener updateListener;
     private CustomTextField txtNamaObat, txtHarga, txtStock, txtExpired;
     private Dropdown txtJenisObat, txtBentukObat;
     private CustomDatePicker customDatePicker;
+    private CustomTextField txtBarcode;
 
     public RegisterObat(OnObatAddedListener listener, OnObatUpdateListener listenerUpdate) {
         this.listener = listener;
@@ -47,8 +60,10 @@ class RegisterObat extends JFrame {
             }
         }
 
-// Convert the Set back to a List if needed (optional step);
+        // Convert the Set back to a List if needed (optional step)
         List<String> jenisObatList = new ArrayList<>(uniqueJenisObatSet);
+        LOGGER.info("Unique jenisObatList: " + jenisObatList);
+
         setTitle("Tambah Obat");
         setSize(400, 300);
         setLocationRelativeTo(null);
@@ -102,7 +117,7 @@ class RegisterObat extends JFrame {
         txtStock = new CustomTextField("Masukkan Stock", 20, 15, Optional.empty());
         formPanel.add(txtStock, gbc);
 
-        // Stock Obat
+        // Expired Date
         gbc.gridx = 0;
         gbc.gridy = 5;
         formPanel.add(new JLabel("Expired Date:"), gbc);
@@ -117,9 +132,17 @@ class RegisterObat extends JFrame {
         });
         formPanel.add(txtExpired, gbc);
 
-        // Submit button
+        // Barcode Obat
         gbc.gridx = 0;
         gbc.gridy = 6;
+        formPanel.add(new JLabel("Barcode:"), gbc);
+        gbc.gridx = 1;
+        txtBarcode = new CustomTextField("Masukkan Barcode", 20, 15, Optional.empty());
+        formPanel.add(txtBarcode, gbc);
+
+        // Submit button
+        gbc.gridx = 0;
+        gbc.gridy = 7;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         RoundedButton submitButton = new RoundedButton("Tambahkan");
@@ -135,10 +158,11 @@ class RegisterObat extends JFrame {
                     String namaObat = txtNamaObat.getText();
                     String jenisObat = (String) txtJenisObat.getSelectedItem();
                     String selectedBentukObat = (String) txtBentukObat.getSelectedItem();
-                    System.out.println(selectedBentukObat);
+                    LOGGER.info("Selected Bentuk Obat: " + selectedBentukObat);
                     String harga = txtHarga.getText();
                     String stock = txtStock.getText();
                     String tanggalExpired = txtExpired.getText();
+                    String barcode = txtBarcode.getText();
 
                     QueryExecutor executor = new QueryExecutor();
                     String Query = "SELECT id_obat, nama_obat, id_jenis_obat, bentuk_obat, harga FROM obat WHERE nama_obat = ? ";
@@ -154,13 +178,13 @@ class RegisterObat extends JFrame {
                         Integer getHarga = ((BigDecimal) results.get(0).get("harga")).intValue();
                         Integer hargaDifference = getHarga - hargaInput;
                         boolean isHargaFluctation = hargaDifference >= getHarga / 10 || hargaDifference <= getHarga / 10 * -1;
-                        System.out.println(getId + ", " + isHargaFluctation + ", " + hargaDifference);
+                        LOGGER.info("ID: " + getId + ", Harga Fluctuation: " + isHargaFluctation + ", Harga Difference: " + hargaDifference);
                         CustomDialog confirmHarga = new CustomDialog(null, "Apakah Anda Yakin Harga Dari Obat " + namaObat + " dengan Harga " + hargaInput + "?", "Konfirmasi");
                         int responseHarga = confirmHarga.showDialog();
                         if (responseHarga == JOptionPane.YES_OPTION) {
                             int hargaJual = (int) Math.round(hargaInput * 1.1);
-                            String QueryUpdate = "UPDATE obat SET harga = ? WHERE id_obat = ?";
-                            Object[] parameterUpdate = new Object[]{hargaJual, getId};
+                            String QueryUpdate = "UPDATE obat SET harga = ?, barcode = ? WHERE id_obat = ?";
+                            Object[] parameterUpdate = new Object[]{hargaJual, barcode, getId};
                             isUpdateObat = QueryExecutor.executeUpdateQuery(QueryUpdate, parameterUpdate);
                             if (isUpdateObat) {
                                 idObat = getId;
@@ -183,8 +207,8 @@ class RegisterObat extends JFrame {
                             idJenisObat = getIdJenis == 404 ? 0 : getIdJenis;
                         }
                         Integer hargaInput = Integer.valueOf(harga);
-                        String QueryUpdate = "INSERT INTO obat (nama_obat, id_jenis_obat, bentuk_obat, harga) VALUES (?, ?, ?, ?)";
-                        Object[] parameterUpdate = new Object[]{namaObat, idJenisObat, selectedBentukObat, hargaInput};
+                        String QueryUpdate = "INSERT INTO obat (nama_obat, id_jenis_obat, bentuk_obat, harga, barcode) VALUES (?, ?, ?, ?, ?)";
+                        Object[] parameterUpdate = new Object[]{namaObat, idJenisObat, selectedBentukObat, hargaInput, barcode};
                         idObat = (int) QueryExecutor.executeInsertQueryWithReturnID(QueryUpdate, parameterUpdate);
                         isUpdateObat = idObat != 404;
                         if (isUpdateObat) {
@@ -215,7 +239,7 @@ class RegisterObat extends JFrame {
                         if (isInsertFinal) {
                             JOptionPane.showMessageDialog(null, "Data Obat dengan Nama: " + namaObat, "Success", JOptionPane.INFORMATION_MESSAGE);
                         } else {
-                            JOptionPane.showMessageDialog(null, "Dsta Obat Gagal.", "Error", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(null, "Data Obat Gagal.", "Error", JOptionPane.ERROR_MESSAGE);
                         }
                     } else if (isInsertDetailObat || isUpdateObat) {
                         String message;
@@ -226,7 +250,7 @@ class RegisterObat extends JFrame {
                         }
                         JOptionPane.showMessageDialog(null, message, "Sukses", JOptionPane.INFORMATION_MESSAGE);
                     } else {
-                        JOptionPane.showMessageDialog(null, "Dsta Obat Gagal.", "Error", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "Data Obat Gagal.", "Error", JOptionPane.ERROR_MESSAGE);
                     }
                     if (isInsertDetailObat) {
                         if (isUpdateObat) {
@@ -238,7 +262,7 @@ class RegisterObat extends JFrame {
                     // Close the form after submission
                     dispose();
                 } else {
-                    JOptionPane.showMessageDialog(null, "Dsta Obat Gagal Simpan, User Belum Login", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Data Obat Gagal Simpan, User Belum Login", "Error", JOptionPane.ERROR_MESSAGE);
                     dispose();
                 }
             }

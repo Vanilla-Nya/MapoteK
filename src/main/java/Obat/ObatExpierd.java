@@ -356,7 +356,7 @@ public class ObatExpierd extends JPanel {
                         String stock = (String) String.valueOf(model.getValueAt(row, 4));      // STOCK
 
                         // Launch the EditObat form with the selected data
-                        new EditObat(namaObat, jenisObat, harga, stock, obatTable, row);
+                        new EditObat(namaObat, jenisObat, harga, stock, "", obatTable, row);
 
                         stopCellEditing();  // Stop editing after opening the edit window
                     } else {

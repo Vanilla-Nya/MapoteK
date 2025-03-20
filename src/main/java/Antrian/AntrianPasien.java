@@ -6,22 +6,21 @@ import Components.Dropdown;
 import Components.RoundedButton;
 import DataBase.QueryExecutor;
 import Global.UserSessionCache;
+import Transaksi.FormPembayaran;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
-/**
- *
- * @author asuna
- */
 public class AntrianPasien extends JPanel {
 
     private DefaultTableModel model;
@@ -219,6 +218,22 @@ public class AntrianPasien extends JPanel {
                 add(terimaButton);
             }
 
+            // Create "BAYAR" button only if status is "Sudah Diperiksa"
+            if ("Selesai Diperiksa".equals(status) && role != 1) {
+                JButton bayarButton = new RoundedButton("BAYAR");
+                bayarButton.setBackground(Color.BLUE);
+                bayarButton.setForeground(Color.WHITE);
+                bayarButton.setFocusPainted(false);
+                bayarButton.addActionListener(e -> {
+                    if (row >= 0 && row < idList.size()) {
+                        Object[] patientData = getPatientData(row);
+                        String idAntrian = idList.get(row).toString();
+                        new FormPembayaran(patientData, idAntrian, status);
+                    }
+                });
+                add(bayarButton);
+            }
+
             if (role != 1) {
                 JButton hapusButton = new RoundedButton("HAPUS");
                 hapusButton.setBackground(new Color(255, 51, 51));
@@ -282,6 +297,21 @@ public class AntrianPasien extends JPanel {
                     }
                 });
                 panel.add(terimaButton);
+            }
+            // Add "BAYAR" button only if status is "Sudah Diperiksa"
+            if ("Selesai Diperiksa".equals(status) && role != 1) {
+                JButton bayarButton = new RoundedButton("BAYAR");
+                bayarButton.setBackground(Color.BLUE);
+                bayarButton.setForeground(Color.WHITE);
+                bayarButton.setFocusPainted(false);
+                bayarButton.addActionListener(e -> {
+                    if (row >= 0 && row < idList.size()) {
+                        Object[] patientData = getPatientData(row);
+                        String idAntrian = idList.get(row).toString();
+                        new FormPembayaran(patientData, idAntrian, status);
+                    }
+                });
+                panel.add(bayarButton);
             }
 
             // Add "HAPUS" button

@@ -1,11 +1,5 @@
 package Obat;
 
-import Components.CustomDialog;
-import Components.CustomTable.CustomTable;
-import Components.CustomTextField;
-import Components.RoundedButton;
-import Components.RoundedPanel;
-import DataBase.QueryExecutor;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -20,6 +14,7 @@ import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
+
 import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -32,6 +27,13 @@ import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
+
+import Components.CustomDialog;
+import Components.CustomTable.CustomTable;
+import Components.CustomTextField;
+import Components.RoundedButton;
+import Components.RoundedPanel;
+import DataBase.QueryExecutor;
 
 public class StockObatMenipis extends JPanel {
 
@@ -372,7 +374,7 @@ public class StockObatMenipis extends JPanel {
                         String stock = (String) String.valueOf(model.getValueAt(row, 4));      // STOCK
 
                         // Launch the EditObat form with the selected data
-                        new EditObat(namaObat, jenisObat, harga, stock, obatTable, row);
+                        new EditObat(namaObat, jenisObat, harga, stock, "additionalParameter", obatTable, row);
 
                         stopCellEditing();  // Stop editing after opening the edit window
                     } else {

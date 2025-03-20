@@ -1,28 +1,32 @@
 package Obat;
 
 import Components.CustomDialog;
-import Components.CustomTable.CustomTable;
 import Components.CustomTextField;
+import Components.CustomTable.CustomTable;
 import Components.RoundedButton;
 import Components.RoundedPanel;
 import DataBase.QueryExecutor;
 import Helpers.OnObatAddedListener;
 import Helpers.OnObatUpdateListener;
-import static Pemeriksaan.TablePemeriksaan.mapToArray;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Optional;
+
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
+
+import java.awt.event.MouseEvent;
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
+
+import static Pemeriksaan.TablePemeriksaan.mapToArray;
 
 public class Obat extends JPanel implements OnObatAddedListener, OnObatUpdateListener {
 
@@ -273,10 +277,11 @@ public class Obat extends JPanel implements OnObatAddedListener, OnObatUpdateLis
 
     private void updateDataPanel(JTable table, int row) {
         // Get values from the selected row and safely convert them to Strings
-        String namaObat = String.valueOf(table.getValueAt(row, 1));  // Column 1: NAMA OBAT
-        String jenisObat = String.valueOf(table.getValueAt(row, 2));  // Column 2: JENIS OBAT
-        String harga = String.valueOf(table.getValueAt(row, 3));      // Column 3: HARGA
-        String stock = String.valueOf(table.getValueAt(row, 4));      // Column 4: STOCK
+        String barcode = String.valueOf(table.getValueAt(row, 1));  // Column 1: BARCODE
+        String namaObat = String.valueOf(table.getValueAt(row, 2));  // Column 2: NAMA OBAT
+        String jenisObat = String.valueOf(table.getValueAt(row, 3));  // Column 3: JENIS OBAT
+        String harga = String.valueOf(table.getValueAt(row, 4));      // Column 4: HARGA
+        String stock = String.valueOf(table.getValueAt(row, 5));      // Column 5: STOCK
 
         // Update the labels in the data panel with values from the selected row
         namaObatLabel.setText("NAMA OBAT : " + namaObat);
@@ -362,7 +367,7 @@ public class Obat extends JPanel implements OnObatAddedListener, OnObatUpdateLis
         }
 
         // Update the table model with the refreshed data
-        tableModel.setDataVector(data, new String[]{"NO", "NAMA OBAT", "JENIS OBAT", "HARGA", "STOCK", "AKSI"});
+        tableModel.setDataVector(data, new String[]{"NO", "BARCODE", "NAMA OBAT", "JENIS OBAT", "HARGA", "STOCK", "AKSI"});
 
         // Reapply the button rendering and editing to the "AKSI" column
         obatTable.getColumn("AKSI").setCellRenderer(new ActionCellRenderer());
@@ -422,13 +427,14 @@ public class Obat extends JPanel implements OnObatAddedListener, OnObatUpdateLis
                     // Ensure row index is valid before attempting to edit
                     if (row >= 0) {
                         // Get data from the selected row
-                        String namaObat = (String) model.getValueAt(row, 1);  // NAMA OBAT
-                        String jenisObat = (String) model.getValueAt(row, 2);  // JENIS OBAT
-                        String harga = (String) String.valueOf(model.getValueAt(row, 3));      // HARGA
-                        String stock = (String) String.valueOf(model.getValueAt(row, 4));      // STOCK
+                        String namaObat = (String) model.getValueAt(row, 2);  // NAMA OBAT
+                        String jenisObat = (String) model.getValueAt(row, 3);  // JENIS OBAT
+                        String harga = String.valueOf(model.getValueAt(row, 4));  // HARGA
+                        String stock = String.valueOf(model.getValueAt(row, 5));  // STOCK
+                        String barcode = (String) model.getValueAt(row, 1);  // BARCODE
 
                         // Launch the EditObat form with the selected data
-                        new EditObat(namaObat, jenisObat, harga, stock, obatTable, row);
+                        new EditObat(namaObat, jenisObat, harga, stock, barcode, obatTable, row);
 
                         stopCellEditing();  // Stop editing after opening the edit window
                     } else {

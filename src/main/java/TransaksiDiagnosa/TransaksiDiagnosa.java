@@ -173,7 +173,7 @@ public class TransaksiDiagnosa extends JFrame {
         // Create a panel for Drug info with left alignment
         JPanel drugInfoPanel = new JPanel();
         drugInfoPanel.setLayout(new BoxLayout(drugInfoPanel, BoxLayout.Y_AXIS));  // Left-align patient info
-        String[] columnNames = {"NAMA OBAT", "JENIS OBAT", "JUMLAH", "HARGA", "CARA PENGGUNAAN", "AKSI"};
+        String[] columnNames = {"NAMA OBAT", "JENIS OBAT", "JUMLAH", "HARGA", "SIGNA", "AKSI"};
         model = new DefaultTableModel(data, columnNames) {
             public boolean isCellEditable(int row, int column) {
                 return column == 5;  // Only "AKSI" column is editable
@@ -227,7 +227,7 @@ public class TransaksiDiagnosa extends JFrame {
             String uuid = (String) cache.getUUID();
             String diagnosis = diagnosisTextArea.getText();
             int rowCount = model.getRowCount();
-            Object[][] row = new Object[rowCount][5];  // 5 columns (name, type, jumlah, harga, usage)
+            Object[][] row = new Object[rowCount][6];  // 6 columns (name, type, jumlah, harga, usage, signa)
             boolean isDone = false;
             boolean isFinal = false;
             String getIdQuery = "SELECT id_detail_pemeriksaan FROM detail_pemeriksaan ORDER BY id_detail_pemeriksaan DESC LIMIT 1";
@@ -248,6 +248,7 @@ public class TransaksiDiagnosa extends JFrame {
                 Object jumlah = model.getValueAt(i, 2); // Get value at (row, column 2)
                 Object harga = model.getValueAt(i, 3);  // Get value at (row, column 3)
                 Object usage = model.getValueAt(i, 4);  // Get value at (row, column 4)
+                Object signa = model.getValueAt(i, 5);  // Get value at (row, column 5)
                 int hargaJasaText = 0;
                 if (!hargaJasa.getText().isEmpty()) {
                     try {
@@ -261,8 +262,8 @@ public class TransaksiDiagnosa extends JFrame {
                     return;
                 }
                 // insert into pemeriksaan obat id, jumlah get id pemeriksaan_obat
-                String insertObatQuery = "INSERT INTO pemeriksaan_obat (id_obat, jumlah) VALUES (?,?)";
-                Object[] parameter = new Object[]{id, jumlah};
+                String insertObatQuery = "INSERT INTO pemeriksaan_obat (id_obat, jumlah) VALUES (?,?,?)";
+                Object[] parameter = new Object[]{id, signa, jumlah};
                 Long insertObat = QueryExecutor.executeInsertQueryWithReturnID(insertObatQuery, parameter);
                 if (insertObat != 404L) {
                     // insert into detail_pemeriksaan detail pemeriksaan
@@ -280,13 +281,8 @@ public class TransaksiDiagnosa extends JFrame {
                 // Debugging statement to log the value of idAntrian
                 System.out.println("Inserting into detail_pembayaran with id_antrian: " + idAntrian);
 
-                // Remove the insert into detail_pembayaran
-                // String insertDetailPembayaran = "INSERT INTO detail_pembayaran(id_antrian, nama_obat, jenis_obat, jumlah, harga, cara_penggunaan) VALUES (?,?,?,?,?,?)";
-                // Object[] parameterDetailPembayaran = new Object[]{idAntrian, name, type, jumlah, harga, usage};
-                // QueryExecutor.executeInsertQuery(insertDetailPembayaran, parameterDetailPembayaran);
-
                 // Store the data in the row array
-                row[i] = new Object[]{name, type, jumlah, harga, usage};
+                row[i] = new Object[]{name, type, jumlah, harga, usage, signa};
             }
             if (isDone) {
                 try {

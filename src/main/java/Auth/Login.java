@@ -50,7 +50,7 @@ public class Login extends JFrame {
 
     public Login() {
 
-        // Frame setup
+        // Frame setup  
         setTitle("Mapotek App - Login");
         setSize(800, 500); // Match size of Mapotek app
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
