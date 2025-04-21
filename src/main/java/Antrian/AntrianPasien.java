@@ -426,4 +426,12 @@ public class AntrianPasien extends JPanel {
         }
         return total;
     }
+    
+    public static int getTotalAntrianHariIni() {
+        return 12; // contoh data
+    }
+
+    public static String getAntrianSaatIni() {
+        return "B012"; // contoh data
+    }
 }

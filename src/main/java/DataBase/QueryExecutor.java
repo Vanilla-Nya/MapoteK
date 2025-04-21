@@ -21,6 +21,21 @@ import java.util.Map;
 
 public class QueryExecutor {
 
+    public static List<String> executeQueryList(String query) {
+    List<String> results = new ArrayList<>();
+    try (Connection conn = DatabaseUtil.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(query);
+         ResultSet rs = pstmt.executeQuery()) {
+
+        while (rs.next()) {
+            results.add(rs.getString(1)); // ambil kolom pertama tiap baris
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return results;
+}
+
     // Method to execute a SELECT query and return results as a List of Maps
     public List<Map<String, Object>> executeSelectQuery(String query, Object[] parameters) {
         Connection conn = null;
@@ -73,6 +88,12 @@ public class QueryExecutor {
         }
 
         return resultList;  // Return the list of rows
+    }
+    
+    public static ResultSet executeQuery(String query) throws SQLException {
+        Connection conn = DatabaseUtil.getConnection(); // koneksi ke DB
+        Statement stmt = conn.createStatement();
+        return stmt.executeQuery(query);
     }
     
     // Method to execute a UPDATE query
@@ -246,4 +267,35 @@ public class QueryExecutor {
             }
         }
     }
+    
+    public static List<Integer> getIncomeData() throws SQLException {
+    List<Integer> data = new ArrayList<>();
+    // Misal ambil dari query "SELECT total FROM pemasukan ORDER BY bulan"
+    ResultSet rs = executeQuery("SELECT total FROM pemasukan ORDER BY bulan");
+    while (rs.next()) {
+        data.add(rs.getInt("total"));
+    }
+    return data;
+}
+
+public static List<Integer> getOutcomeData() throws SQLException {
+    List<Integer> data = new ArrayList<>();
+    // Misal ambil dari query "SELECT total FROM pengeluaran ORDER BY bulan"
+    ResultSet rs = executeQuery("SELECT total FROM pengeluaran ORDER BY bulan");
+    while (rs.next()) {
+        data.add(rs.getInt("total"));
+    }
+    return data;
+}
+
+public static List<String> getLabelData() throws SQLException {
+    List<String> labels = new ArrayList<>();
+    // Misal ambil dari query "SELECT nama_bulan FROM pemasukan ORDER BY bulan"
+    ResultSet rs = executeQuery("SELECT nama_bulan FROM pemasukan ORDER BY bulan");
+    while (rs.next()) {
+        labels.add(rs.getString("nama_bulan"));
+    }
+    return labels;
+}
+
 }

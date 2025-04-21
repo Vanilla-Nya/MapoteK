@@ -20,6 +20,10 @@ import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
+import java.util.List;
+import java.util.ArrayList;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -32,6 +36,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
+import DataBase.QueryExecutor;
 
 public class ObatExpierd extends JPanel {
 
@@ -431,4 +436,15 @@ public class ObatExpierd extends JPanel {
             return null;
         }
     }
+    
+   public static List<String> getObatKadaluwarsa() {
+    String query = """
+        SELECT o.nama_obat 
+        FROM obat o
+        JOIN detail_obat d ON o.id_obat = d.id_obat
+        WHERE d.tanggal_expired < CURDATE()
+    """;
+    return QueryExecutor.executeQueryList(query);
+    }
+
 }

@@ -14,6 +14,7 @@ import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
+import java.util.List;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
@@ -34,6 +35,9 @@ import Components.CustomTextField;
 import Components.RoundedButton;
 import Components.RoundedPanel;
 import DataBase.QueryExecutor;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class StockObatMenipis extends JPanel {
 
@@ -97,6 +101,27 @@ public class StockObatMenipis extends JPanel {
         add(topPanel, BorderLayout.NORTH);
         add(mainPanel, BorderLayout.CENTER);
     }
+
+    public static List<String> getObatMenipis() {
+    List<String> listObat = new ArrayList<>();
+    String query = """
+        SELECT o.nama_obat 
+        FROM detail_obat d
+        JOIN obat o ON d.id_obat = o.id_obat
+        WHERE d.stock < 10
+    """;
+
+    try {
+        ResultSet rs = QueryExecutor.executeQuery(query);
+        while (rs.next()) {
+            listObat.add(rs.getString("nama_obat"));
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return listObat;
+}
 
     private boolean isStockRunningLow(String bentukObat, int stock) {
         // Check if stock is low based on the bentuk_obat type

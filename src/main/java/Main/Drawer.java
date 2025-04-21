@@ -79,7 +79,7 @@ public class Drawer extends JFrame {
         // Sidebar / Drawer Panel
         drawerPanel = new JPanel();
         drawerPanel.setLayout(new BoxLayout(drawerPanel, BoxLayout.Y_AXIS));
-        drawerPanel.setBackground(new Color(58, 64, 74));
+        drawerPanel.setBackground(new Color(0, 150, 136));
         drawerPanel.setPreferredSize(new Dimension(250, getHeight()));
 
         // Toggle Button for Drawer Collapse/Expand
@@ -87,7 +87,7 @@ public class Drawer extends JFrame {
         toggleButton.setIcon(new ImageIcon(new ImageIcon(getClass().getClassLoader().getResource("assets/bars-solid.png")).getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH)));
         toggleButton.setFocusPainted(false);
         toggleButton.setForeground(Color.WHITE);
-        toggleButton.setBackground(new Color(58, 64, 74));
+        toggleButton.setBackground(new Color(0, 150, 136));
         toggleButton.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         toggleButton.addActionListener(e -> toggleDrawer());
 
@@ -205,7 +205,7 @@ public class Drawer extends JFrame {
         JButton button = new JButton(text);
         button.setFocusPainted(false);
         button.setForeground(Color.WHITE);
-        button.setBackground(new Color(58, 64, 74));
+        button.setBackground(new Color(0, 150, 136));
         button.setFont(new Font("Arial", Font.PLAIN, 18));
         button.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
         button.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -214,12 +214,12 @@ public class Drawer extends JFrame {
         button.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(new Color(70, 80, 95));
+                button.setBackground(new Color(89, 89, 89));
             }
 
             @Override
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(new Color(58, 64, 74));
+                button.setBackground(new Color(0, 150, 136));
             }
         });
         return button;
@@ -230,7 +230,7 @@ public class Drawer extends JFrame {
         mainPanel.removeAll(); // Clear previous content
 
         if (section.equals("Dashboard")) {
-            mainPanel.add(new Dashboard(this).getContentPane(), BorderLayout.CENTER);
+            mainPanel.add(new Dashboard(section), BorderLayout.CENTER);
         } else if (section.equals("Pasien")) {
             mainPanel.add(new Pasien().getContentPane(), BorderLayout.CENTER);
         } else if (section.equals("Obat")) {
