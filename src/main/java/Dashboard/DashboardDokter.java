@@ -16,6 +16,8 @@ import Antrian.AntrianPasien;
 import Components.RoundedButtonDashboard;
 import Components.RoundedPanelDashboard;
 import java.awt.BorderLayout;
+import javax.swing.JScrollPane;
+import javax.swing.border.EmptyBorder;
 
 public class DashboardDokter extends JPanel {
     public static void main(String[] args) {
@@ -78,6 +80,12 @@ public class DashboardDokter extends JPanel {
         antrianPanel.setBounds(20, 120, 540, 220);
         antrianPanel.add(new JLabel("Daftar Antrian"));
         antrianPanel.setLayout(new BorderLayout());
+        antrianPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        // Tabel dari AntrianPasien (hanya status "Diterima")
+        AntrianPasien antrianPasienComponent = new AntrianPasien();
+        JScrollPane tableScrollPane = antrianPasienComponent.getTabelPasienDiterimaOnly();
+        antrianPanel.add(tableScrollPane, BorderLayout.CENTER);
         
         frame.add(dashboardLabel);
         frame.add(headerPanel);

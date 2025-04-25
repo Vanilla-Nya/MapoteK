@@ -55,6 +55,7 @@ public class Login extends JFrame {
         setSize(800, 500); // Match size of Mapotek app
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+        setVisible(true);
 
         // Set FlatLaf theme with custom rounded corners
         FlatLightLaf.setup();

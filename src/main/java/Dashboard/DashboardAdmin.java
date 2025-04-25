@@ -16,12 +16,15 @@ import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 
 import Absensi.Absensi;
+import Antrian.AntrianDashboard;
 import Auth.Login;
 import Components.RoundedButtonDashboard;
 import Components.RoundedPanelDashboard;
 import Obat.StockObatMenipis;
 import Obat.ObatExpierd;
 import Antrian.AntrianPasien;
+import java.awt.Dimension;
+import javax.swing.border.EmptyBorder;
 
 public class DashboardAdmin extends JPanel {
     public static void main(String[] args) {
@@ -131,24 +134,17 @@ public class DashboardAdmin extends JPanel {
         kadaluwarsaPanel.add(labelKadaluwarsaIsi, BorderLayout.CENTER);
 
         // Panel Daftar Antrian
-         JPanel antrianPanel = new RoundedPanelDashboard(20, Color.BLACK, 2);
+        JPanel antrianPanel = new RoundedPanelDashboard(20, Color.BLACK, 2);
         antrianPanel.setBackground(Color.WHITE);
         antrianPanel.setBounds(240, 120, 320, 210);
         antrianPanel.setLayout(new BorderLayout());
         antrianPanel.add(new JLabel("Daftar Antrian", SwingConstants.CENTER), BorderLayout.NORTH);
+        antrianPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         
-        JTextArea antrianTextArea = new JTextArea();
-        antrianTextArea.setEditable(false);
-        antrianTextArea.setLineWrap(true);
-        antrianTextArea.setWrapStyleWord(true);
-        antrianTextArea.setMargin(new Insets(5, 5, 5, 5));
-        antrianPanel.add(antrianTextArea, BorderLayout.CENTER);
-
-        
-        int totalAntrian = AntrianPasien.getTotalAntrianHariIni();
-        String antrianSaatIni = AntrianPasien.getAntrianSaatIni();
-        antrianTextArea.append("Total Antrian Hari Ini: " + totalAntrian + "\n");
-        antrianTextArea.append("Antrian Saat Ini: " + antrianSaatIni + "\n");
+        //Table antrian
+        AntrianDashboard Panelantrian = new AntrianDashboard(); 
+        Panelantrian.setPreferredSize(new Dimension(400, 70));
+        antrianPanel.add(Panelantrian);
 
         frame.add(dashboardLabel);
         frame.add(headerPanel);

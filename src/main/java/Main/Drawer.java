@@ -72,6 +72,7 @@ public class Drawer extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
+        setVisible(true);
 
         // Set the shape of the JFrame to have rounded corners
         setShape(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 40, 40)); // 40 is the corner radius

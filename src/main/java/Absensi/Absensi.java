@@ -47,6 +47,7 @@ public class Absensi extends JFrame {
     public Absensi() {
         setSize(1000, 600);
         setLocationRelativeTo(null);
+        setVisible(true);
 
         // Initialize labels before accessing them
         lblCheckInTime = new JLabel("Check In Today: -");

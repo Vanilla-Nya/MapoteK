@@ -16,6 +16,10 @@ public class UserSessionCache {
     // Simulating an in-memory cache using HashMap
     private static final HashMap<String, String> cache = new HashMap<>();
 
+    public static Object getInstance() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
     // Method to simulate user login and cache their session data
     public void login(String username, String uuid) {
 

@@ -427,11 +427,32 @@ public class AntrianPasien extends JPanel {
         return total;
     }
     
-    public static int getTotalAntrianHariIni() {
-        return 12; // contoh data
-    }
+    public JScrollPane getTabelPasienDiterimaOnly() {
+    QueryExecutor executor = new QueryExecutor();
+    String query = "CALL all_antrian(?)";
+    Object[] parameter = new Object[]{"79f82701-9e35-11ef-944a-fc34974a9138"}; // bisa diganti UUID dinamis
+    List<Map<String, Object>> results = executor.executeSelectQuery(query, parameter);
 
-    public static String getAntrianSaatIni() {
-        return "B012"; // contoh data
-    }
+    String[] columnNames = {"TANGGAL ANTRIAN", "NO ANTRIAN", "NAMA PASIEN", "STATUS"};
+    Object[][] data = results.stream()
+        .filter(row -> "Diterima".equals(row.get("status_antrian")))
+        .map(row -> new Object[]{
+            row.get("tanggal_antrian"),
+            row.get("no_antrian"),
+            row.get("nama_pasien"),
+            row.get("status_antrian")
+        })
+        .toArray(Object[][]::new);
+
+    DefaultTableModel model = new DefaultTableModel(data, columnNames) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+    };
+
+    CustomTable table = new CustomTable(model);
+    return new JScrollPane(table);
+}
+    
 }

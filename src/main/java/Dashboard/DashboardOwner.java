@@ -26,6 +26,8 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import DataBase.DatabaseUtil;
 import DataBase.QueryExecutor;
 import Absensi.Absensi;
+import Antrian.AntrianDashboard;
+import Antrian.AntrianPasien;
 import Auth.Login;
 import Components.RoundedButtonDashboard;
 import Components.RoundedPanelDashboard;
@@ -55,25 +57,25 @@ public class DashboardOwner extends JPanel {
         // Panel Header
         JPanel headerPanel = new RoundedPanelDashboard(20, Color.BLACK, 2);
         headerPanel.setBackground(Color.WHITE);
-        headerPanel.setBounds(20, 30, 540, 70);
+        headerPanel.setBounds(20, 30, 120, 320);
         headerPanel.setLayout(null);
         
         JLabel profilePic = new JLabel(new ImageIcon("profile.png")); // Placeholder for profile picture
-        profilePic.setBounds(10, 10, 50, 50);
+        profilePic.setBounds(25, 10, 50, 50);
         
         JLabel welcomeLabel = new JLabel("Welcome");
-        welcomeLabel.setBounds(70, 10, 100, 20);
+        welcomeLabel.setBounds(25, 60, 110, 60);
         
         JLabel nameLabel = new JLabel("ALFON");
-        nameLabel.setBounds(70, 25, 150, 20);
+        nameLabel.setBounds(25, 75, 110, 60);
         
         JLabel roleLabel = new JLabel("OWNER");
-        roleLabel.setBounds(70, 40, 100, 20);
+        roleLabel.setBounds(25, 90, 110, 60);
         
         JButton btnAbsensi = new RoundedButtonDashboard("Absensi", 20, new Color(0, 150, 136), 2);
-        btnAbsensi.setBackground(new Color(0, 150, 136));
+        btnAbsensi.setBackground(new Color(0, 150, 136)); 
         btnAbsensi.setForeground(Color.WHITE);
-        btnAbsensi.setBounds(350, 25, 80, 30);
+        btnAbsensi.setBounds(10, 240, 100, 30);
         btnAbsensi.addActionListener(e -> {
             new Absensi(); // Open Absensi
             frame.dispose(); // Close Dashboard
@@ -82,7 +84,7 @@ public class DashboardOwner extends JPanel {
         JButton btnKeluar = new RoundedButtonDashboard("Keluar", 20, new Color(0, 150, 136), 2);
         btnKeluar.setBackground(new Color(0, 150, 136));
         btnKeluar.setForeground(Color.WHITE);
-        btnKeluar.setBounds(440, 25, 80, 30);
+        btnKeluar.setBounds(10, 280, 100, 30);
         btnKeluar.addActionListener(e -> {
             new Login(); // Open Login
             frame.dispose(); // Close Dashboard
@@ -99,18 +101,18 @@ public class DashboardOwner extends JPanel {
         JPanel card = new RoundedPanelDashboard(22, Color.BLACK, 2);
         card.setBackground(Color.WHITE);
         card.setLayout(new BorderLayout());
-        card.setBounds(20, 110, 540, 160);
+        card.setBounds(150, 30, 410, 130);
         card.setBorder(new EmptyBorder(5, 5, 5, 5));
 
         // Example data for income and outcome
-        int[] incomeData = {30, 70, 50, 90, 60};
-        int[] outcomeData = {20, 90, 40, 80, 70};
+        int[] incomeData = {30, 70, 50, 90, 60, 40};
+        int[] outcomeData = {20, 90, 40, 80, 70, 50};
 
         // Custom labels for the x-axis and y-axis
-        String[] xLabels = {"Jan", "Feb", "Mar", "Apr", "May"};
+        String[] xLabels = {"Jan", "Feb", "Mar", "Apr", "May", "Jun"};
         String[] yLabels = {"0", "20", "40", "60", "80", "100"};
         CustomChart chart = new CustomChart(incomeData, outcomeData, xLabels, yLabels);
-        chart.setPreferredSize(new Dimension(600, 170));
+        chart.setPreferredSize(new Dimension(390, 130));
 
         card.add(chart, BorderLayout.CENTER);  
         card.revalidate();
@@ -119,12 +121,12 @@ public class DashboardOwner extends JPanel {
         // Panel Stok Obat
         JPanel stokObatPanel = new RoundedPanelDashboard(20, Color.BLACK, 2);
         stokObatPanel.setBackground(Color.WHITE);
-        stokObatPanel.setBounds(20, 280, 265, 70);
+        stokObatPanel.setBounds(150, 170, 180, 60);
         stokObatPanel.setLayout(new BorderLayout());
 
         // Judul rata tengah secara horizontal
         JLabel labelStok = new JLabel("Stok Obat Menipis", SwingConstants.CENTER);
-        labelStok.setFont(new Font("Arial", Font.BOLD, 14));
+        labelStok.setFont(new Font("Arial", Font.BOLD, 0));
         stokObatPanel.add(labelStok, BorderLayout.NORTH);
         
         // Data stok menipis
@@ -145,12 +147,12 @@ public class DashboardOwner extends JPanel {
         // Panel Obat Kadaluwarsa
         JPanel kadaluwarsaPanel = new RoundedPanelDashboard(20, Color.BLACK, 2);
         kadaluwarsaPanel.setBackground(Color.WHITE);
-        kadaluwarsaPanel.setBounds(295, 280, 265, 70);
+        kadaluwarsaPanel.setBounds(380, 170, 180, 60);
         kadaluwarsaPanel.setLayout(new BorderLayout());
 
         // Judul
         JLabel labelKadaluwarsa = new JLabel("Obat Kadaluwarsa", SwingConstants.CENTER);
-        labelKadaluwarsa.setFont(new Font("Arial", Font.BOLD, 14));
+        labelKadaluwarsa.setFont(new Font("Arial", Font.BOLD, 0));
         kadaluwarsaPanel.add(labelKadaluwarsa, BorderLayout.NORTH);
 
         // Data kadaluarsa
@@ -158,7 +160,7 @@ public class DashboardOwner extends JPanel {
         int jumlahKadaluwarsa = obatKadaluwarsaList.size();
 
         String labelKadaluwarsaText = obatKadaluwarsaList.isEmpty()
-            ? "<html><div style='text-align:center; font-size:14px;'>TIDAK ADA<br>OBAT KADALUWARSA</div></html>"
+            ? "<html><div style='text-align:center; font-size:12px;'>OBAT KADALUWARSA<br>AMAN</div></html>"
             : "<html><div style='text-align:center;'>"
             + "<span style='font-size:10px; font-weight:bold; color:red;'>WARNING!!</span><br>"
             + "<span style='font-size:12px; font-weight:bold; color:black;'>" + jumlahKadaluwarsa + "</span><br>"
@@ -168,12 +170,29 @@ public class DashboardOwner extends JPanel {
         JLabel labelKadaluwarsaIsi = new JLabel(labelKadaluwarsaText, SwingConstants.CENTER);
         kadaluwarsaPanel.add(labelKadaluwarsaIsi, BorderLayout.CENTER);
 
+        //Panel antrian
+        JPanel Panelantrian = new RoundedPanelDashboard(20, Color.BLACK, 2);
+        Panelantrian.setBackground(Color.WHITE);
+        Panelantrian.setBounds(150, 240, 410, 110);
+        Panelantrian.setLayout(new BorderLayout());
+        Panelantrian.setBorder(new EmptyBorder(10, 10, 10, 10));
+        
+        //Judul antrian
+        JLabel lblAntrian = new JLabel("Antrian", SwingConstants.CENTER);
+        lblAntrian.setFont(new Font("Arial", Font.BOLD, 0));
+        Panelantrian.add(lblAntrian, BorderLayout.NORTH);
+        
+        //Table antrian
+        AntrianDashboard antrianPanel = new AntrianDashboard(); 
+        antrianPanel.setPreferredSize(new Dimension(400, 70));
+        Panelantrian.add(antrianPanel);
         
         frame.add(dashboardLabel);
         frame.add(headerPanel);
         frame.add(card);
         frame.add(stokObatPanel);
         frame.add(kadaluwarsaPanel);
+        frame.add(Panelantrian);
         
         frame.setVisible(true);
     }

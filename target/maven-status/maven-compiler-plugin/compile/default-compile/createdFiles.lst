@@ -9,6 +9,7 @@ Pasien\Pasien$ActionCellEditor.class
 Obat\StockObatMenipis.class
 Pembukuan\Pembukuan$4.class
 Components\TextButton$1.class
+Antrian\AntrianDashboard$1.class
 Obat\StockObatMenipis$ActionCellRenderer.class
 Obat\RegisterObat$1.class
 Antrian\AntrianPasien$3.class
@@ -23,6 +24,7 @@ Auth\OTPPage$3.class
 Helpers\TypeNumberHelper.class
 Obat\ObatExpierd.class
 Transaksi\FormPembayaran.class
+Antrian\ScrollBarCustom.class
 Dashboard\DashboardDokter.class
 Components\CustomTitleBarFrame$2.class
 Components\CustomDialog$2.class
@@ -84,6 +86,7 @@ TransaksiDiagnosa\TransaksiDiagnosa$1.class
 Components\CustomTable\CustomTable$2.class
 Obat\Obat$ActionCellEditor.class
 Transaksi\FormPembayaran$PrintableBill.class
+Antrian\AntrianPasien$4.class
 Antrian\TambahkanAntrian.class
 Main\Drawer.class
 Antrian\AntrianPasien$1.class
@@ -152,6 +155,7 @@ Pembukuan\Pembukuan$3.class
 Pengeluaran\Pengeluaran$1.class
 Auth\OTPPage.class
 Pasien\Pasien$ActionCellEditor$1.class
+Antrian\AntrianDashboard.class
 Auth\Login$1.class
 Components\CustomTable\ActionCellRenderer.class
 Auth\UbahPassword$1.class
