@@ -437,14 +437,34 @@ public class ObatExpierd extends JPanel {
         }
     }
     
-   public static List<String> getObatKadaluwarsa() {
-    String query = """
-        SELECT o.nama_obat 
-        FROM obat o
-        JOIN detail_obat d ON o.id_obat = d.id_obat
-        WHERE d.tanggal_expired < CURDATE()
-    """;
-    return QueryExecutor.executeQueryList(query);
-    }
+        public static Object[][] getObatKadaluwarsa() {
+         QueryExecutor executor = new QueryExecutor();
+         String query = "CALL all_obat_expired()";
+
+         java.util.List<Map<String, Object>> results = executor.executeSelectQuery(query, new Object[]{});
+         Object[][] data = new Object[0][]; // Inisialisasi array awal kosong
+
+         if (!results.isEmpty()) {
+             int index = 1;
+             for (Map<String, Object> result : results) {
+                 Object[] dataFromDatabase = new Object[]{
+                     index++, // Nomor urut
+                     result.get("nama_obat"),
+                     result.get("nama_jenis_obat"),
+                     result.get("tanggal_expired"),
+                     result.get("stock"),
+                     "" // Untuk tombol aksi jika ada
+                 };
+
+                 // Tambah ke array data
+                 Object[][] newData = new Object[data.length + 1][];
+                 System.arraycopy(data, 0, newData, 0, data.length);
+                 newData[data.length] = dataFromDatabase;
+                 data = newData;
+             }
+         }
+
+         return data;
+     }
 
 }

@@ -29,7 +29,7 @@ import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-
+    
 import com.formdev.flatlaf.FlatLightLaf;
 
 import Components.CustomPanel;
@@ -43,7 +43,7 @@ import Main.Drawer;
 /**
  *
  * @author asuna
- */
+ */ 
 
 
 public class Login extends JFrame {
@@ -55,7 +55,6 @@ public class Login extends JFrame {
         setSize(800, 500); // Match size of Mapotek app
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setVisible(true);
 
         // Set FlatLaf theme with custom rounded corners
         FlatLightLaf.setup();
@@ -181,9 +180,10 @@ public class Login extends JFrame {
         btnLogin.setPreferredSize(new Dimension(200, 50));
 
         btnLogin.addActionListener(e -> {
+             System.out.println("Login button clicked");
             // Catch Field
             String usernameOrRFID = txtUsernameOrRFID.getText();
-            String password = new String(txtPassword.getPassword()); // Use `new String()` to get password from JPasswordField
+            String password = new String(txtPassword.getPassword()); // Use new String() to get password from JPasswordField
 
             // Executor
             QueryExecutor executor = new QueryExecutor();
@@ -253,7 +253,7 @@ public class Login extends JFrame {
                 String usernameOrRFID = txtUsernameOrRFID.getText();
                 if (usernameOrRFID.matches("\\d{10}")) { // Check if input is a 10-digit numeric (RFID)
                     // Catch Field
-                    String password = txtPassword.getPassword(); // Use `getPassword()` to get password from CustomTextField
+                    String password = txtPassword.getPassword(); // Use getPassword() to get password from CustomTextField
 
                     // Executor
                     QueryExecutor executor = new QueryExecutor();

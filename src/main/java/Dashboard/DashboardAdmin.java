@@ -119,18 +119,24 @@ public class DashboardAdmin extends JPanel {
         kadaluwarsaPanel.add(obatKadaluarsaJLabel, BorderLayout.NORTH);
 
         // Data kadaluarsa
-        List<String> obatKadaluwarsaList = ObatExpierd.getObatKadaluwarsa();
-        int jumlahKadaluwarsa = obatKadaluwarsaList.size();
+        Object[][] expiredObat = ObatExpierd.getObatKadaluwarsa();
+        int jumlahKadaluwarsa = expiredObat.length;
 
-        String labelKadaluwarsaText = obatKadaluwarsaList.isEmpty()
-            ? "<html><div style='text-align:center; font-size:14px;'>TIDAK ADA<br>OBAT KADALUWARSA</div></html>"
-            : "<html><div style='text-align:center;'>"
-            + "<span style='font-size:14px; font-weight:bold; color:red;'>WARNING!!</span><br>"
-            + "<span style='font-size:18px; font-weight:bold; color:black;'>" + jumlahKadaluwarsa + "</span><br>"
-            + "<span style='font-size:12px; color:black;'>OBAT KADALUWARSA!</span></div></html>";
+        JLabel labelKadaluwarsaIsi = new JLabel();
+        labelKadaluwarsaIsi.setHorizontalAlignment(SwingConstants.CENTER);
+        labelKadaluwarsaIsi.setVerticalAlignment(SwingConstants.CENTER);
 
-        // Tampilkan label isi
-        JLabel labelKadaluwarsaIsi = new JLabel(labelKadaluwarsaText, SwingConstants.CENTER);
+        if (jumlahKadaluwarsa == 0) {
+            labelKadaluwarsaIsi.setText("OBAT KADALUWARSA AMAN");
+            labelKadaluwarsaIsi.setFont(new Font("Arial", Font.PLAIN, 12));
+            labelKadaluwarsaIsi.setForeground(Color.BLACK);
+        } else {
+            labelKadaluwarsaIsi.setText("WARNING!! " + jumlahKadaluwarsa + " OBAT KADALUWARSA!");
+            labelKadaluwarsaIsi.setFont(new Font("Arial", Font.BOLD, 14));
+            labelKadaluwarsaIsi.setForeground(Color.RED);
+        }
+
+        // Tambahkan label ke panel
         kadaluwarsaPanel.add(labelKadaluwarsaIsi, BorderLayout.CENTER);
 
         // Panel Daftar Antrian

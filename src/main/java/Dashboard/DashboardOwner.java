@@ -156,10 +156,11 @@ public class DashboardOwner extends JPanel {
         kadaluwarsaPanel.add(labelKadaluwarsa, BorderLayout.NORTH);
 
         // Data kadaluarsa
-        List<String> obatKadaluwarsaList = ObatExpierd.getObatKadaluwarsa();
-        int jumlahKadaluwarsa = obatKadaluwarsaList.size();
+        Object[][] expiredObat = ObatExpierd.getObatKadaluwarsa();
+        int jumlahKadaluwarsa = expiredObat.length;
 
-        String labelKadaluwarsaText = obatKadaluwarsaList.isEmpty()
+
+        String labelKadaluwarsaText = jumlahKadaluwarsa == 0
             ? "<html><div style='text-align:center; font-size:12px;'>OBAT KADALUWARSA<br>AMAN</div></html>"
             : "<html><div style='text-align:center;'>"
             + "<span style='font-size:10px; font-weight:bold; color:red;'>WARNING!!</span><br>"
