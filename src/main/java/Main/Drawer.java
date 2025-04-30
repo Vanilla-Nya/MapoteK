@@ -45,7 +45,7 @@ public class Drawer extends JFrame {
     private final JLabel contentLabel;
     private boolean isDrawerCollapsed = false;
     private final JButton toggleButton;
-    private final JButton dashboardOwnerButton, dashboardAdminButton, dashboardDokterButton, pasienButton, obatButton, queueButton, pembukuanButton, pemeriksaanButton, userButton, absensiButton, allAbsensiButton;
+    private final JButton dashboardButton, pasienButton, obatButton, queueButton, pembukuanButton, pemeriksaanButton, userButton, absensiButton, allAbsensiButton;
 
     // Single instance of Absensi class
     private Absensi absensiInstance;
@@ -95,9 +95,7 @@ public class Drawer extends JFrame {
         toggleButton.addActionListener(e -> toggleDrawer());
 
         // Buttons for the Drawer
-        dashboardOwnerButton = createDrawerButton(" Dashboard");
-        dashboardAdminButton = createDrawerButton(" Dashboard");
-        dashboardDokterButton = createDrawerButton(" Dashboard");
+        dashboardButton = createDrawerButton(" Dashboard");
         pasienButton = createDrawerButton(" Pasien");
         obatButton = createDrawerButton(" Obat");
         queueButton = createDrawerButton(" Antrian");
@@ -107,9 +105,7 @@ public class Drawer extends JFrame {
         absensiButton = createDrawerButton(" Absensi");
         allAbsensiButton = createDrawerButton(" All Absensi");
 
-        dashboardOwnerButton.setIcon(new ImageIcon(new ImageIcon(getClass().getClassLoader().getResource("assets/house-solid.png")).getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH)));  // Set icon for Dashboard
-        dashboardAdminButton.setIcon(new ImageIcon(new ImageIcon(getClass().getClassLoader().getResource("assets/house-solid.png")).getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH)));  // Set icon for Dashboard
-        dashboardDokterButton.setIcon(new ImageIcon(new ImageIcon(getClass().getClassLoader().getResource("assets/house-solid.png")).getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH)));  // Set icon for Dashboard
+        dashboardButton.setIcon(new ImageIcon(new ImageIcon(getClass().getClassLoader().getResource("assets/house-solid.png")).getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH)));  // Set icon for Dashboard
         pasienButton.setIcon(new ImageIcon(new ImageIcon(getClass().getClassLoader().getResource("assets/hospital-user-solid.png")).getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH)));  // Set icon for Pasien
         obatButton.setIcon(new ImageIcon(new ImageIcon(getClass().getClassLoader().getResource("assets/pills-solid.png")).getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH)));  // Set icon for Obat
         queueButton.setIcon(new ImageIcon(new ImageIcon(getClass().getClassLoader().getResource("assets/list-solid.png")).getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH)));  // Set icon for Antrian
@@ -120,9 +116,7 @@ public class Drawer extends JFrame {
         allAbsensiButton.setIcon(new ImageIcon(new ImageIcon(getClass().getClassLoader().getResource("assets/user-solid.png")).getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH)));  // Set icon for All Absensi
 
         // Add Action Listeners to Drawer Buttons
-        dashboardOwnerButton.addActionListener(e -> showContent("Dashboard", this));
-        dashboardAdminButton.addActionListener(e -> showContent("Dashboard", this));
-        dashboardDokterButton.addActionListener(e -> showContent("Dashboard", this));
+        dashboardButton.addActionListener(e -> showContent("Dashboard", this));
         pasienButton.addActionListener(e -> showContent("Pasien", this));
         obatButton.addActionListener(e -> showContent("Obat", this));
         queueButton.addActionListener(e -> showContent("Antrian", this));
@@ -135,9 +129,7 @@ public class Drawer extends JFrame {
         // Add Components to Drawer
         drawerPanel.add(toggleButton);
         drawerPanel.add(Box.createRigidArea(new Dimension(0, 10)));  // Spacing
-        drawerPanel.add(dashboardOwnerButton);
-        drawerPanel.add(dashboardAdminButton);
-        drawerPanel.add(dashboardDokterButton);
+        drawerPanel.add(dashboardButton);
         drawerPanel.add(pasienButton);
         drawerPanel.add(obatButton);
         drawerPanel.add(queueButton);
@@ -150,7 +142,10 @@ public class Drawer extends JFrame {
         switch (role) { //Admin
             case 1 -> {
                 toggleButton.setVisible(true);
-                dashboardAdminButton.setVisible(true); // Menampilkan Menu Dashboard
+                dashboardButton.setVisible(true);  // Dashboard Admin
+                dashboardButton.addActionListener(e -> {
+                    new DashboardAdmin().setVisible(true);  // Tampilkan DashboardAdmin
+                });
                 pasienButton.setVisible(true); // Menampilkan Menu Pasien
                 obatButton.setVisible(false); // Tidak Menampilkan Menu Obat
                 queueButton.setVisible(true); // Menampilkan Menu Antrian
@@ -162,7 +157,10 @@ public class Drawer extends JFrame {
             }
             case 2 -> { //Dokter
                 toggleButton.setVisible(true);
-                dashboardDokterButton.setVisible(true); // Menampilkan Menu Dashboard
+                dashboardButton.setVisible(true);  // Dashboard Dokter
+                dashboardButton.addActionListener(e -> {
+                    new DashboardDokter().setVisible(true);  // Tampilkan DashboardDokter
+                });
                 pasienButton.setVisible(false); // Tidak Menampilkan Menu Pasien
                 obatButton.setVisible(false); // Tidak Menampilkan Menu Obat
                 queueButton.setVisible(true); // Menampilkan Menu Antrian
@@ -174,7 +172,10 @@ public class Drawer extends JFrame {
             }
             case 3 -> { //Owner
                 toggleButton.setVisible(true); 
-                dashboardOwnerButton.setVisible(true); // Menampilkan Menu Dashboard
+                dashboardButton.setVisible(true);  // Dashboard Owner
+                dashboardButton.addActionListener(e -> {
+                    new DashboardOwner().setVisible(true);  // Tampilkan DashboardOwner
+                });
                 pasienButton.setVisible(true); // Menampilkan Menu Pasien
                 obatButton.setVisible(true); // Menampilkan Menu Obat
                 queueButton.setVisible(true); // Menampilkan Menu Antrian
@@ -283,9 +284,7 @@ public class Drawer extends JFrame {
         if (isDrawerCollapsed) {
             drawerPanel.setPreferredSize(new Dimension(250, getHeight()));  // Expand drawer
             toggleButton.setText("");  // Change to collapse icon/text
-            dashboardOwnerButton.setText(" Dashboard");
-            dashboardAdminButton.setText(" Dashboard");
-            dashboardDokterButton.setText(" Dashboard");
+            dashboardButton.setText(" Dashboard");
             pasienButton.setText(" Pasien");
             obatButton.setText(" Obat");
             queueButton.setText(" Antrian");
@@ -299,9 +298,7 @@ public class Drawer extends JFrame {
             drawerPanel.setPreferredSize(new Dimension(50, getHeight()));
 
             // Hide text in collapsed state
-            dashboardOwnerButton.setText("");  // Hide text in collapsed state
-            dashboardAdminButton.setText("");
-            dashboardDokterButton.setText("");
+            dashboardButton.setText("");  // Hide text in collapsed state
             pasienButton.setText("");
             obatButton.setText("");
             queueButton.setText("");
@@ -312,9 +309,7 @@ public class Drawer extends JFrame {
             allAbsensiButton.setText("");
 
             // Optionally, set the button size if needed to fit the icons
-            dashboardOwnerButton.setPreferredSize(new Dimension(40, 40));
-            dashboardAdminButton.setPreferredSize(new Dimension(40, 40));
-            dashboardDokterButton.setPreferredSize(new Dimension(40, 40));
+            dashboardButton.setPreferredSize(new Dimension(40, 40));
             pasienButton.setPreferredSize(new Dimension(40, 40));
             obatButton.setPreferredSize(new Dimension(40, 40));
             queueButton.setPreferredSize(new Dimension(40, 40));
