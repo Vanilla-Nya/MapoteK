@@ -23,7 +23,11 @@ import Components.RoundedPanelDashboard;
 import Obat.StockObatMenipis;
 import Obat.ObatExpierd;
 import Antrian.AntrianPasien;
+import Components.UserSessionCache;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 public class DashboardAdmin extends JPanel {
@@ -44,13 +48,16 @@ public class DashboardAdmin extends JPanel {
         headerPanel.setBounds(20, 30, 540, 80);
         headerPanel.setLayout(null);
         
+        UserSessionCache cache = new UserSessionCache();
+        String username = cache.getUsername();
+        
         JLabel profilePic = new JLabel(new ImageIcon("profile.png")); // Placeholder for profile picture
         profilePic.setBounds(10, 10, 50, 50);
         
         JLabel welcomeLabel = new JLabel("Welcome");
         welcomeLabel.setBounds(70, 10, 100, 20);
         
-        JLabel nameLabel = new JLabel("ALFON");
+        JLabel nameLabel = new JLabel(username);
         nameLabel.setBounds(70, 30, 150, 20);
         
         JLabel roleLabel = new JLabel("ADMIN");
@@ -60,21 +67,27 @@ public class DashboardAdmin extends JPanel {
         btnAbsensi.setBackground(new Color(0, 150, 136));
         btnAbsensi.setForeground(Color.WHITE);
         btnAbsensi.setBounds(350, 25, 80, 30);
-        btnAbsensi.addActionListener(e -> {
-            new Absensi(); // Open Absensi
-            frame.dispose(); // Close Dashboard
+        btnAbsensi.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Menampilkan tampilan absensi
+                new Absensi().setVisible(true);
+            }
         });
         
         JButton btnKeluar = new RoundedButtonDashboard("Keluar", 20, new Color(0, 150, 136), 2);
         btnKeluar.setBackground(new Color(0, 150, 136));
         btnKeluar.setForeground(Color.WHITE);
         btnKeluar.setBounds(440, 25, 80, 30);
-        btnKeluar.addActionListener(e -> {
-            new Login(); // Open Login
-            frame.dispose(); // Close Dashboard
+        btnKeluar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new Auth.Login().setVisible(true); // Menampilkan jendela Login
+                SwingUtilities.getWindowAncestor(btnKeluar).dispose(); // Menutup jendela saat ini
+            }
         });
         
-        headerPanel.add(profilePic);
+         headerPanel.add(profilePic);
         headerPanel.add(welcomeLabel);
         headerPanel.add(nameLabel);
         headerPanel.add(roleLabel);
@@ -86,7 +99,7 @@ public class DashboardAdmin extends JPanel {
         stokObatPanel.setBackground(Color.WHITE);
         stokObatPanel.setBounds(20, 120, 200, 100);
         stokObatPanel.setLayout(new BorderLayout());
-
+        
         // Label judul
         JLabel stokObatJLabel = new JLabel("Stock Obat Menipis");
         stokObatJLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -107,7 +120,7 @@ public class DashboardAdmin extends JPanel {
         JLabel labelStokIsi = new JLabel(labelStokText, SwingConstants.CENTER);
         stokObatPanel.add(labelStokIsi, BorderLayout.CENTER);
         
-        // Panel Obat Kadaluwarsa
+        //Panel Obat Kadaluwarsa
         JPanel kadaluwarsaPanel = new RoundedPanelDashboard(20, Color.BLACK, 2);
         kadaluwarsaPanel.setBackground(Color.WHITE);
         kadaluwarsaPanel.setBounds(20, 230, 200, 100);
@@ -121,22 +134,15 @@ public class DashboardAdmin extends JPanel {
         // Data kadaluarsa
         Object[][] expiredObat = ObatExpierd.getObatKadaluwarsa();
         int jumlahKadaluwarsa = expiredObat.length;
-
-        JLabel labelKadaluwarsaIsi = new JLabel();
-        labelKadaluwarsaIsi.setHorizontalAlignment(SwingConstants.CENTER);
-        labelKadaluwarsaIsi.setVerticalAlignment(SwingConstants.CENTER);
-
-        if (jumlahKadaluwarsa == 0) {
-            labelKadaluwarsaIsi.setText("OBAT KADALUWARSA AMAN");
-            labelKadaluwarsaIsi.setFont(new Font("Arial", Font.PLAIN, 12));
-            labelKadaluwarsaIsi.setForeground(Color.BLACK);
-        } else {
-            labelKadaluwarsaIsi.setText("WARNING!! " + jumlahKadaluwarsa + " OBAT KADALUWARSA!");
-            labelKadaluwarsaIsi.setFont(new Font("Arial", Font.BOLD, 14));
-            labelKadaluwarsaIsi.setForeground(Color.RED);
-        }
-
-        // Tambahkan label ke panel
+        
+        String labelKadaluwarsaText = (jumlahKadaluwarsa == 0)
+            ? "<html><div style='text-align:center; font-size:14px;'>TIDAK ADA<br>OBAT KADALUWARSA</div></html>"
+            : "<html><div style='text-align:center;'>"
+            + "<span style='font-size:14px; font-weight:bold; color:red;'>WARNING!!</span><br>"
+            + "<span style='font-size:18px; font-weight:bold; color:black;'>" + jumlahKadaluwarsa + "</span><br>"
+            + "<span style='font-size:12px; color:black;'>OBAT KADALUWARSA!</span></div></html>";
+        // Tampilkan label isi
+        JLabel labelKadaluwarsaIsi = new JLabel(labelKadaluwarsaText, SwingConstants.CENTER);
         kadaluwarsaPanel.add(labelKadaluwarsaIsi, BorderLayout.CENTER);
 
         // Panel Daftar Antrian

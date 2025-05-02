@@ -12,16 +12,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
-
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.renderer.category.BarRenderer;
-import org.jfree.data.category.DefaultCategoryDataset;
 
 import DataBase.DatabaseUtil;
 import DataBase.QueryExecutor;
@@ -33,15 +24,18 @@ import Components.RoundedButtonDashboard;
 import Components.RoundedPanelDashboard;
 import Components.CustomChart;
 import Components.TestChart;
+import Components.UserSessionCache;
 import Obat.ObatExpierd;
 import Obat.StockObatMenipis;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 public class DashboardOwner extends JPanel {
-
     private static Component labelStok;
     public static void main(String[] args) {
         JFrame frame = new JFrame("Dashboard Owner");
@@ -60,14 +54,17 @@ public class DashboardOwner extends JPanel {
         headerPanel.setBounds(20, 30, 120, 320);
         headerPanel.setLayout(null);
         
+        UserSessionCache cache = new UserSessionCache();
+        String username = cache.getUsername();
+        
         JLabel profilePic = new JLabel(new ImageIcon("profile.png")); // Placeholder for profile picture
-        profilePic.setBounds(25, 10, 50, 50);
+        profilePic.setBounds(10, 10, 50, 50);
         
         JLabel welcomeLabel = new JLabel("Welcome");
-        welcomeLabel.setBounds(25, 60, 110, 60);
+        welcomeLabel.setBounds(70, 10, 100, 20);
         
-        JLabel nameLabel = new JLabel("ALFON");
-        nameLabel.setBounds(25, 75, 110, 60);
+        JLabel nameLabel = new JLabel(username);
+        nameLabel.setBounds(70, 30, 150, 20);
         
         JLabel roleLabel = new JLabel("OWNER");
         roleLabel.setBounds(25, 90, 110, 60);
@@ -76,18 +73,24 @@ public class DashboardOwner extends JPanel {
         btnAbsensi.setBackground(new Color(0, 150, 136)); 
         btnAbsensi.setForeground(Color.WHITE);
         btnAbsensi.setBounds(10, 240, 100, 30);
-        btnAbsensi.addActionListener(e -> {
-            new Absensi(); // Open Absensi
-            frame.dispose(); // Close Dashboard
+        btnAbsensi.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Menampilkan tampilan absensi
+                new Absensi().setVisible(true);
+            }
         });
         
         JButton btnKeluar = new RoundedButtonDashboard("Keluar", 20, new Color(0, 150, 136), 2);
         btnKeluar.setBackground(new Color(0, 150, 136));
         btnKeluar.setForeground(Color.WHITE);
         btnKeluar.setBounds(10, 280, 100, 30);
-        btnKeluar.addActionListener(e -> {
-            new Login(); // Open Login
-            frame.dispose(); // Close Dashboard
+        btnKeluar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new Auth.Login().setVisible(true); // Menampilkan jendela Login
+                SwingUtilities.getWindowAncestor(btnKeluar).dispose(); // Menutup jendela saat ini
+            }
         });
         
         headerPanel.add(profilePic);
@@ -103,7 +106,7 @@ public class DashboardOwner extends JPanel {
         card.setLayout(new BorderLayout());
         card.setBounds(150, 30, 410, 130);
         card.setBorder(new EmptyBorder(5, 5, 5, 5));
-
+        
         // Example data for income and outcome
         int[] incomeData = {30, 70, 50, 90, 60, 40};
         int[] outcomeData = {20, 90, 40, 80, 70, 50};
@@ -154,12 +157,11 @@ public class DashboardOwner extends JPanel {
         JLabel labelKadaluwarsa = new JLabel("Obat Kadaluwarsa", SwingConstants.CENTER);
         labelKadaluwarsa.setFont(new Font("Arial", Font.BOLD, 0));
         kadaluwarsaPanel.add(labelKadaluwarsa, BorderLayout.NORTH);
-
+        
         // Data kadaluarsa
         Object[][] expiredObat = ObatExpierd.getObatKadaluwarsa();
         int jumlahKadaluwarsa = expiredObat.length;
-
-
+        
         String labelKadaluwarsaText = jumlahKadaluwarsa == 0
             ? "<html><div style='text-align:center; font-size:12px;'>OBAT KADALUWARSA<br>AMAN</div></html>"
             : "<html><div style='text-align:center;'>"
@@ -198,3 +200,4 @@ public class DashboardOwner extends JPanel {
         frame.setVisible(true);
     }
 }
+        

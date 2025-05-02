@@ -15,8 +15,12 @@ import Auth.Login;
 import Antrian.AntrianPasien;
 import Components.RoundedButtonDashboard;
 import Components.RoundedPanelDashboard;
+import Components.UserSessionCache;
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 public class DashboardDokter extends JPanel {
@@ -37,13 +41,16 @@ public class DashboardDokter extends JPanel {
         headerPanel.setBounds(20, 30, 540, 80);
         headerPanel.setLayout(null);
         
+        UserSessionCache cache = new UserSessionCache();
+        String username = cache.getUsername();
+        
         JLabel profilePic = new JLabel(new ImageIcon("profile.png")); // Placeholder for profile picture
         profilePic.setBounds(10, 10, 50, 50);
         
         JLabel welcomeLabel = new JLabel("Welcome");
         welcomeLabel.setBounds(70, 10, 100, 20);
         
-        JLabel nameLabel = new JLabel("ALFON");
+        JLabel nameLabel = new JLabel(username);
         nameLabel.setBounds(70, 30, 150, 20);
         
         JLabel roleLabel = new JLabel("DOKTER");
@@ -53,18 +60,24 @@ public class DashboardDokter extends JPanel {
         btnAbsensi.setBackground(new Color(0, 150, 136));
         btnAbsensi.setForeground(Color.WHITE);
         btnAbsensi.setBounds(350, 25, 80, 30);
-        btnAbsensi.addActionListener(e -> {
-            new Absensi(); // Open Absensi
-            frame.dispose(); // Close Dashboard
+        btnAbsensi.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Menampilkan tampilan absensi
+                new Absensi().setVisible(true);
+            }
         });
-        
+
         JButton btnKeluar = new RoundedButtonDashboard("Keluar", 20, new Color(0, 150, 136), 2);
         btnKeluar.setBackground(new Color(0, 150, 136));
         btnKeluar.setForeground(Color.WHITE);
         btnKeluar.setBounds(440, 25, 80, 30);
-        btnKeluar.addActionListener(e -> {
-            new Login(); // Open Login
-            frame.dispose(); // Close Dashboard
+        btnKeluar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new Auth.Login().setVisible(true); // Menampilkan jendela Login
+                SwingUtilities.getWindowAncestor(btnKeluar).dispose(); // Menutup jendela saat ini
+            }
         });
         
         headerPanel.add(profilePic);

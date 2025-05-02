@@ -104,24 +104,27 @@ public class StockObatMenipis extends JPanel {
 
     public static List<String> getObatMenipis() {
     List<String> listObat = new ArrayList<>();
-    String query = """
-        SELECT o.nama_obat 
-        FROM detail_obat d
-        JOIN obat o ON d.id_obat = o.id_obat
-        WHERE d.stock < 10
-    """;
+    QueryExecutor executor = new QueryExecutor();
+    String query = "CALL all_obat()"; // Query untuk mengambil semua obat
+    java.util.List<Map<String, Object>> results = executor.executeSelectQuery(query, new Object[]{});
+    
+    if (!results.isEmpty()) {
+        for (Map<String, Object> result : results) {
+            String namaObat = String.valueOf(result.get("nama_obat"));
+            String namaJenisObat = String.valueOf(result.get("nama_jenis_obat"));
+            int stock = Integer.parseInt(String.valueOf(result.get("stock")));
 
-    try {
-        ResultSet rs = QueryExecutor.executeQuery(query);
-        while (rs.next()) {
-            listObat.add(rs.getString("nama_obat"));
+            // Cek apakah stok kurang dari 10 tanpa mempertimbangkan bentuk obat
+            if (stock < 10) {
+                // Menambahkan obat yang stoknya kurang dari 10 ke list
+                listObat.add(namaObat + " (" + namaJenisObat + ") - Stok: " + stock);
+            }
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
     }
 
     return listObat;
 }
+
 
     private boolean isStockRunningLow(String bentukObat, int stock) {
         // Check if stock is low based on the bentuk_obat type

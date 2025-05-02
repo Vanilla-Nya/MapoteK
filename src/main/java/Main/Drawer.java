@@ -65,7 +65,7 @@ public class Drawer extends JFrame {
         CustomTitleBarFrame customTitleBar = new CustomTitleBarFrame(
                 "Mapotek", // Title text
                 Color.WHITE, // Title bar background color
-                Color.RED, // Title text color
+                new Color(0, 150, 136), // Title text color
                 Color.RED, // Close button color
                 this::dispose, // Close action (disposes the dialog)
                 this::minimizeWindow // Minimize action
@@ -74,7 +74,6 @@ public class Drawer extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
-        setVisible(true);
 
         // Set the shape of the JFrame to have rounded corners
         setShape(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 40, 40)); // 40 is the corner radius
@@ -139,51 +138,42 @@ public class Drawer extends JFrame {
         drawerPanel.add(absensiButton);
         drawerPanel.add(allAbsensiButton);
 
-        switch (role) { //Admin
-            case 1 -> {
+        switch (role) {
+            case 1 -> {//Admin
                 toggleButton.setVisible(true);
-                dashboardButton.setVisible(true);  // Dashboard Admin
-                dashboardButton.addActionListener(e -> {
-                    new DashboardAdmin().setVisible(true);  // Tampilkan DashboardAdmin
-                });
-                pasienButton.setVisible(true); // Menampilkan Menu Pasien
-                obatButton.setVisible(false); // Tidak Menampilkan Menu Obat
-                queueButton.setVisible(true); // Menampilkan Menu Antrian
-                pemeriksaanButton.setVisible(false); // Tidak Menampilkan Menu Pemeriksaan
-                pembukuanButton.setVisible(false); // Tidak Menampilkan Menu Pembukuan
-                userButton.setVisible(false); // Tidak Menampilkan Menu User
-                absensiButton.setVisible(true); // Menampilkan Menu Absensi
-                allAbsensiButton.setVisible(false); // Tidak Menampilkan Menu All Absensi
+                dashboardButton.setVisible(true);
+                pasienButton.setVisible(true);
+                obatButton.setVisible(false);
+                queueButton.setVisible(true);
+                pemeriksaanButton.setVisible(false);
+                pembukuanButton.setVisible(false);
+                userButton.setVisible(false);
+                absensiButton.setVisible(true);
+                allAbsensiButton.setVisible(false);
             }
-            case 2 -> { //Dokter
+            case 2 -> {//Dokter
                 toggleButton.setVisible(true);
-                dashboardButton.setVisible(true);  // Dashboard Dokter
-                dashboardButton.addActionListener(e -> {
-                    new DashboardDokter().setVisible(true);  // Tampilkan DashboardDokter
-                });
-                pasienButton.setVisible(false); // Tidak Menampilkan Menu Pasien
-                obatButton.setVisible(false); // Tidak Menampilkan Menu Obat
-                queueButton.setVisible(true); // Menampilkan Menu Antrian
-                pemeriksaanButton.setVisible(true); // Menampilkan Menu Pemeriksaan
-                pembukuanButton.setVisible(false); // Tidak Menampilkan Menu Pembukuan
-                userButton.setVisible(false); // Tidak Menampilkan Menu User
-                absensiButton.setVisible(true); // Menampilkan Menu Absensi
-                allAbsensiButton.setVisible(false); // Tidak Menampilkan Menu All Absensi
+                dashboardButton.setVisible(true);
+                pasienButton.setVisible(false);
+                obatButton.setVisible(false);
+                queueButton.setVisible(true);
+                pemeriksaanButton.setVisible(true);
+                pembukuanButton.setVisible(false);
+                userButton.setVisible(false);
+                absensiButton.setVisible(true);
+                allAbsensiButton.setVisible(false);
             }
-            case 3 -> { //Owner
-                toggleButton.setVisible(true); 
-                dashboardButton.setVisible(true);  // Dashboard Owner
-                dashboardButton.addActionListener(e -> {
-                    new DashboardOwner().setVisible(true);  // Tampilkan DashboardOwner
-                });
-                pasienButton.setVisible(true); // Menampilkan Menu Pasien
-                obatButton.setVisible(true); // Menampilkan Menu Obat
-                queueButton.setVisible(true); // Menampilkan Menu Antrian
-                pemeriksaanButton.setVisible(true); // Menampilkan Menu Pemeriksaan
-                pembukuanButton.setVisible(true); // Menampilkan Menu Pembukuan
-                userButton.setVisible(true); // Menampilkan Menu User
-                absensiButton.setVisible(true); // Menampilkan Menu Absensi
-                allAbsensiButton.setVisible(true); // Menampilkan Menu All Absensi
+            case 3 -> {//Owner
+                toggleButton.setVisible(true);
+                dashboardButton.setVisible(true);
+                pasienButton.setVisible(true);
+                obatButton.setVisible(true);
+                queueButton.setVisible(true);
+                pemeriksaanButton.setVisible(true);
+                pembukuanButton.setVisible(true);
+                userButton.setVisible(true);
+                absensiButton.setVisible(true);
+                allAbsensiButton.setVisible(true);
             }
             default -> {
             }
@@ -226,7 +216,7 @@ public class Drawer extends JFrame {
         button.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(new Color(89, 89, 89));
+                button.setBackground(new Color(0, 150, 136));
             }
 
             @Override
@@ -242,12 +232,12 @@ public class Drawer extends JFrame {
         mainPanel.removeAll(); // Clear previous content
 
         if (section.equals("Dashboard")) {
-            if (role == 1) {
-                mainPanel.add(new DashboardAdmin(), BorderLayout.CENTER);
-            } else if (role == 2) {
-                mainPanel.add(new DashboardDokter(), BorderLayout.CENTER);
-            } else if (role == 3) {
-                mainPanel.add(new DashboardOwner(), BorderLayout.CENTER);
+            if (role == 1) { // Admin
+                new DashboardAdmin().setVisible(true);
+            } else if (role == 2) { // Dokter
+                new DashboardDokter().setVisible(true);
+            } else if (role == 3) { // Owner
+                new DashboardOwner().setVisible(true);
             }
         } else if (section.equals("Pasien")) {
             mainPanel.add(new Pasien().getContentPane(), BorderLayout.CENTER);
@@ -330,4 +320,3 @@ public class Drawer extends JFrame {
         });
     }
 }
-    

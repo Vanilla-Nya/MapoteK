@@ -2,6 +2,7 @@ Obat\StockObatMenipis$2.class
 mapotek\Mapotek$2.class
 Obat\EditObat.class
 Components\CustomTextField$2.class
+Dashboard\DashboardAdmin$1.class
 TransaksiDiagnosa\TransaksiDiagnosa$OnPemeriksaanUpdatedListener.class
 Antrian\TambahkanAntrian$1.class
 Pasien\Pasien$ActionCellEditor.class
@@ -21,6 +22,7 @@ Helpers\OnObatUpdateListener.class
 Obat\RegisterObat.class
 Auth\OTPPage$3.class
 Helpers\TypeNumberHelper.class
+Dashboard\DashboardDokter$2.class
 Obat\ObatExpierd.class
 Transaksi\FormPembayaran.class
 Antrian\ScrollBarCustom.class
@@ -29,6 +31,7 @@ Components\CustomTitleBarFrame$2.class
 Components\CustomDialog$2.class
 Components\CustomDialog.class
 Antrian\EditAntrian$2.class
+Dashboard\DashboardOwner$1.class
 Obat\ObatExpierd$ActionCellEditor.class
 Components\CustomTable\ActionCellEditor.class
 Components\RoundedPanel.class
@@ -74,6 +77,7 @@ Auth\Register$1.class
 Auth\OTPPage$1.class
 Components\UnderlineLabel.class
 Antrian\TambahkanAntrian$4.class
+Components\UserSessionCache.class
 Antrian\AntrianPasien$2.class
 Components\CustomTable\CustomTable$1.class
 Obat\ObatExpierd$2.class
@@ -93,6 +97,7 @@ Auth\Login$2.class
 Components\CustomDialog$3.class
 Pemeriksaan\TablePemeriksaan$ActionCellEditor.class
 Antrian\AntrianPasien$ActionCellRenderer.class
+Dashboard\DashboardOwner$2.class
 User\EditUser$1.class
 Components\RoundedBorder.class
 Obat\StockObatMenipis$ActionCellEditor$1.class
@@ -128,6 +133,7 @@ Components\RoundedButton.class
 DataBase\DatabaseUtil.class
 Pasien\RegisterPasien.class
 Pembukuan\Pembukuan$2.class
+Dashboard\DashboardDokter$1.class
 User\User$ActionCellRenderer.class
 Components\CustomDialog$1.class
 TransaksiDiagnosa\TransaksiDiagnosa$ActionCellRenderer.class
@@ -140,6 +146,7 @@ Antrian\AntrianPasien.class
 Obat\Obat$ActionCellEditor$1.class
 Obat\Obat$ActionCellRenderer.class
 Antrian\AntrianPasien$ActionCellEditor.class
+Dashboard\DashboardAdmin$2.class
 Obat\Obat$1.class
 Pasien\Pasien$ActionCellRenderer.class
 Auth\LupaPasword$1.class
