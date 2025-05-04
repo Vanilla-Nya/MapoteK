@@ -26,8 +26,8 @@ import Absensi.AllAbsensi;
 import Antrian.AntrianPasien;
 import Components.CustomTitleBarFrame;
 import Dashboard.DashboardAdmin;
-import Dashboard.DashboardDokter;
 import Dashboard.DashboardOwner;
+import Dashboard.DashboardDokter;
 import DataBase.QueryExecutor;
 import Global.UserSessionCache;
 import Obat.ManagementObatDanObatExpierd;
@@ -231,13 +231,13 @@ public class Drawer extends JFrame {
     private void showContent(String section, Drawer drawer) {
         mainPanel.removeAll(); // Clear previous content
 
-        if (section.equals("Dashboard")) {
-            if (role == 1) { // Admin
-                new DashboardAdmin().setVisible(true);
-            } else if (role == 2) { // Dokter
-                new DashboardDokter().setVisible(true);
-            } else if (role == 3) { // Owner
-                new DashboardOwner().setVisible(true);
+        if(section.equals("Dashboard")) {
+            if (role == 1) {
+                mainPanel.add(new DashboardAdmin(), BorderLayout.CENTER);
+            } else if (role == 2) {
+                mainPanel.add(new DashboardDokter(), BorderLayout.CENTER);
+            } else if (role == 3) {
+                mainPanel.add(new DashboardOwner(), BorderLayout.CENTER);
             }
         } else if (section.equals("Pasien")) {
             mainPanel.add(new Pasien().getContentPane(), BorderLayout.CENTER);
